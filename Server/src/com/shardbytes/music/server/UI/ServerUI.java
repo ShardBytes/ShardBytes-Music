@@ -45,7 +45,7 @@ public final class ServerUI{
 		}catch(IOException e){
 			addExceptionMessage(e.getMessage());
 		}
-		//TODO: Change speed before production, uses too many CPU cycles right now when displaying a exception message (darkening)!
+		//TODO: Change speed before production, uses too many CPU cycles right now when displaying an exception message (darkening)!
 		startRender(60);
 		
 	}
