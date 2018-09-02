@@ -13,7 +13,7 @@ class Client{
 	private ObjectOutputStream toClient;
 	private ObjectInputStream fromClient;
 	private String nickname;
-	private boolean connected;
+	private boolean connected = true;
 	
 	Client(Socket clientSocket){
 		socket = clientSocket;
@@ -27,16 +27,19 @@ class Client{
 	
 	Client process(){
 		try{
+			Thread.sleep(5000);
 			send("getNickname");
-			nickname = fromClient.readUTF();
+			nickname = (String)fromClient.readObject();
+			System.out.println("nickname = " + nickname);
 			
 			while(connected){
-				byte command = fromClient.readByte();
+				byte command = ((Integer)fromClient.readObject()).byteValue();
+				System.out.println("command = " + command);
 				processCommand(command);
 				
 			}
 			
-		}catch(IOException e){
+		}catch(IOException | InterruptedException | ClassNotFoundException e){
 			ServerUI.addExceptionMessage(e.getMessage());
 		}
 		
@@ -55,10 +58,19 @@ class Client{
 	private void processCommand(byte command){
 		switch(command){
 			case 0:
+				System.out.println("nulla ciii");
 				break;
 			
+			case 60:
+				connected = false;
+				System.out.println("DISCONNEEEEEEEEEEEECT");
+				break;
 		}
 		
 	}
 	
+	@Override
+	public String toString(){
+		return nickname;
+	}
 }

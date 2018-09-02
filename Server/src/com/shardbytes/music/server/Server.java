@@ -26,20 +26,25 @@ public class Server{
 	private void start(){
 		createUI();
 		
-		try{
-			ServerSocket server = new ServerSocket(8192);
-			while(ui.getRenderStatus()){
-				Socket clientSocket = server.accept();
-				Client client = new Client(clientSocket);
-				clients.add(client);
-				new Thread(() -> {
-					clients.remove(client.process());
-				}).start();
-				
+		Thread serverThread = new Thread(() -> {
+			try{
+				ServerSocket server = new ServerSocket(8192);
+				while(ui.getRenderStatus()){
+					Socket clientSocket = server.accept();
+					Client client = new Client(clientSocket);
+					clients.add(client);
+					new Thread(() -> {
+						clients.remove(client.process());
+					}).start();
+					
+				}
+			}catch(IOException e){
+				ServerUI.addExceptionMessage(e.getMessage());
 			}
-		}catch(IOException e){
-			ServerUI.addExceptionMessage(e.getMessage());
-		}
+		});
+		
+		serverThread.setDaemon(true);
+		serverThread.start();
 		
 	}
 
@@ -49,6 +54,10 @@ public class Server{
 	private void createUI(){
 		ui = new ServerUI();
 		
+	}
+	
+	public static ArrayList<Client> getClients(){
+		return clients;
 	}
 	
 }

@@ -10,6 +10,7 @@ import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
+import com.shardbytes.music.server.Server;
 
 import java.awt.*;
 import java.io.IOException;
@@ -78,6 +79,8 @@ public final class ServerUI{
 		fillColour(66, 66, 66);
 		fill(1, 5, Math.round(xSize * 0.4f), Math.round(ySize * 0.9f) >= ySize - 3 ? ySize - 3 : Math.round(ySize * 0.9f));
 		fill(Math.round(xSize * 0.5f), 5, Math.round(xSize * 0.8f), Math.round(ySize * 0.9f) >= ySize - 3 ? ySize - 3 : Math.round(ySize * 0.9f));
+		
+		print(1, 5, Server.getClients().toString());
 		
 		fillColour(33, 33, 33);
 		fill(0, ySize - 1, xSize - 1, ySize - 1);
