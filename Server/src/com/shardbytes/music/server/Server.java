@@ -1,5 +1,7 @@
 package com.shardbytes.music.server;
 
+import com.shardbytes.music.server.UI.ServerUI;
+
 public class Server{
 
 	/**
@@ -21,7 +23,8 @@ public class Server{
 	 * Creates server's UI
 	 */
 	private void createUI(){
-		new ServerUI().start();
+		new ServerUI();
+		
 	}
 	
 }
