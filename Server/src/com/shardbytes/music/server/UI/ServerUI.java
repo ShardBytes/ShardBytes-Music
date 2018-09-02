@@ -350,4 +350,8 @@ public final class ServerUI{
 		
 	}
 	
+	public boolean getRenderStatus(){
+		return render;
+	}
+	
 }
