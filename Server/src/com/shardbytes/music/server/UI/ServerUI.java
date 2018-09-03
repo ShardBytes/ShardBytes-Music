@@ -28,6 +28,7 @@ public final class ServerUI{
 	private ExceptionMessage currentMessage;
 	
 	private static ArrayList<ExceptionMessage> errorList = new ArrayList<>();
+	private static ArrayList<LogMessage> logList = new ArrayList<>();
 	
 	public ServerUI(){
 		try{
@@ -54,6 +55,10 @@ public final class ServerUI{
 		errorList.add(new ExceptionMessage(message));
 	}
 	
+	public static void log(String message){
+		logList.add(new LogMessage(message));
+	}
+	
 	public void stop(){
 		render = false;
 	}
@@ -78,9 +83,10 @@ public final class ServerUI{
 		
 		fillColour(66, 66, 66);
 		fill(1, 5, Math.round(xSize * 0.4f), Math.round(ySize * 0.9f) >= ySize - 3 ? ySize - 3 : Math.round(ySize * 0.9f));
-		fill(Math.round(xSize * 0.5f), 5, Math.round(xSize * 0.8f), Math.round(ySize * 0.9f) >= ySize - 3 ? ySize - 3 : Math.round(ySize * 0.9f));
+		fill(Math.round(xSize * 0.5f), 5, Math.round(xSize * 0.9f), Math.round(ySize * 0.9f) >= ySize - 3 ? ySize - 3 : Math.round(ySize * 0.9f));
 		
-		print(1, 5, Server.getClients().toString());
+		print(1, 5, formatClients());
+		print(Math.round(xSize * 0.5f), 5, formatLog());
 		
 		fillColour(33, 33, 33);
 		fill(0, ySize - 1, xSize - 1, ySize - 1);
@@ -111,6 +117,15 @@ public final class ServerUI{
 	 */
 	private void print(int x, int y, String text){
 		graphics.putString(x, y, text);
+	}
+	
+	private void print(int x, int y, String[] textLines){
+		for(int i = 0, textLinesLength = textLines.length; i < textLinesLength; i++){
+			String line = textLines[i];
+			graphics.putString(x, y + i, line);
+			
+		}
+		
 	}
 	
 	/**
@@ -282,6 +297,19 @@ public final class ServerUI{
 			
 		}
 		
+		//Null check
+		if(message == null || message.isEmpty()){
+			message = "Empty error message";
+		}
+		
+		//Short message check
+		if(message.length() < 7){
+			while(message.length() < 7){
+				message = message.concat(" ");
+			}
+			
+		}
+		
 		int messageLength = message.length();
 		if(message.length() % 2 == 1){
 			messageLength++;
@@ -355,6 +383,72 @@ public final class ServerUI{
 	
 	public boolean getRenderStatus(){
 		return render;
+	}
+	
+	private String[] formatClients(){
+		ArrayList<String> clientList = new ArrayList<>();
+		
+		int width = Math.round(xSize * 0.4f) - 1 + 1;
+		
+		Server.getClients().forEach((client -> {
+			if(client.toString().length() > width){
+				clientList.addAll(splitString(client.toString(), width));
+			}else{
+				clientList.add(client.toString());
+			}
+			
+		}));
+		
+		int lines = (Math.round(ySize * 0.9f) >= ySize - 3 ? ySize - 3 : Math.round(ySize * 0.9f)) - 4;
+		if(lines < 0){
+			lines = 0;
+		}
+		
+		if(clientList.size() > lines){
+			return clientList.subList(clientList.size() - lines, clientList.size()).toArray(new String[0]);
+		}else{
+			return clientList.toArray(new String[0]);
+		}
+		
+	}
+	
+	private String[] formatLog(){
+		ArrayList<String> logLines = new ArrayList<>();
+		
+		int width = Math.round(xSize * 0.9f) - Math.round(xSize * 0.5f) + 1;
+		
+		logList.forEach((logMessage -> {
+			if(logMessage.toString().length() > width){
+				logLines.addAll(splitString(logMessage.toString(), width));
+			}else{
+				logLines.add(logMessage.toString());
+			}
+			
+		}));
+		
+		int lines = (Math.round(ySize * 0.9f) >= ySize - 3 ? ySize - 3 : Math.round(ySize * 0.9f)) - 4;
+		if(lines < 0){
+			lines = 0;
+		}
+		
+		if(logLines.size() > lines){
+			return logLines.subList(logLines.size() - lines, logLines.size()).toArray(new String[0]);
+		}else{
+			return logLines.toArray(new String[0]);
+		}
+		
+	}
+	
+	private ArrayList<String> splitString(String string, int splitsize){
+		ArrayList<String> parts = new ArrayList<>();
+		int length = string.length();
+		
+		for(int i = 0; i < length; i += splitsize){
+			parts.add(string.substring(i, Math.min(length, i + splitsize)));
+		}
+		
+		return parts;
+		
 	}
 	
 }
