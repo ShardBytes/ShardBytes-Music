@@ -7,7 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-class Client{
+public class Client{
 	
 	private Socket socket;
 	private ObjectOutputStream toClient;
@@ -15,31 +15,31 @@ class Client{
 	private String nickname;
 	private boolean connected = true;
 	
-	Client(Socket clientSocket){
+	public Client(Socket clientSocket){
 		socket = clientSocket;
 		try{
 			toClient = new ObjectOutputStream(socket.getOutputStream());
 			fromClient = new ObjectInputStream(socket.getInputStream());
+			nickname = socket.getInetAddress().getHostAddress();
 		}catch(IOException e){
 			ServerUI.addExceptionMessage(e.getMessage());
 		}
+		
 	}
 	
 	Client process(){
 		try{
-			Thread.sleep(5000);
 			send("getNickname");
 			nickname = (String)fromClient.readObject();
-			System.out.println("nickname = " + nickname);
+			ServerUI.log(nickname + " connected.");
 			
 			while(connected){
 				byte command = ((Integer)fromClient.readObject()).byteValue();
-				System.out.println("command = " + command);
 				processCommand(command);
 				
 			}
 			
-		}catch(IOException | InterruptedException | ClassNotFoundException e){
+		}catch(IOException | ClassNotFoundException e){
 			ServerUI.addExceptionMessage(e.getMessage());
 		}
 		
@@ -58,12 +58,12 @@ class Client{
 	private void processCommand(byte command){
 		switch(command){
 			case 0:
-				System.out.println("nulla ciii");
+				ServerUI.log("0");
 				break;
 			
 			case 60:
 				connected = false;
-				System.out.println("DISCONNEEEEEEEEEEEECT");
+				ServerUI.log(nickname + " disconnected. (60)");
 				break;
 		}
 		
@@ -71,6 +71,7 @@ class Client{
 	
 	@Override
 	public String toString(){
-		return nickname;
+		return "- " + socket.getInetAddress().getHostAddress() + " (" + nickname + ")";
 	}
+	
 }

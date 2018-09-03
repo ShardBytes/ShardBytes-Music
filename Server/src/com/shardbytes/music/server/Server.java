@@ -3,6 +3,7 @@ package com.shardbytes.music.server;
 import com.shardbytes.music.server.UI.ServerUI;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ public class Server{
 		
 		Thread serverThread = new Thread(() -> {
 			try{
-				ServerSocket server = new ServerSocket(8192);
+				ServerSocket server = new ServerSocket(8192, 10, InetAddress.getByName("192.168.100.166"));
 				while(ui.getRenderStatus()){
 					Socket clientSocket = server.accept();
 					Client client = new Client(clientSocket);
