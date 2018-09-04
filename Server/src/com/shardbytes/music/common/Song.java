@@ -1,5 +1,6 @@
 package com.shardbytes.music.common;
 
+import java.io.File;
 import java.io.Serializable;
 
 public class Song implements Serializable{
@@ -7,11 +8,13 @@ public class Song implements Serializable{
 	private String title;
 	private String artist;
 	private String album;
+	private File file;
 	
-	public Song(String title, String artist, String album){
+	public Song(String title, String artist, String album, File file){
 		this.title = title;
 		this.artist = artist;
 		this.album = album;
+		this.file = file;
 	}
 	
 	public String getTitle(){
@@ -24,6 +27,10 @@ public class Song implements Serializable{
 	
 	public String getAlbum(){
 		return album;
+	}
+	
+	public File getFile(){
+		return file;
 	}
 	
 	@Override

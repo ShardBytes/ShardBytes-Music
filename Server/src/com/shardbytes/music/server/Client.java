@@ -66,6 +66,11 @@ public class Client{
 				ServerUI.log(nickname + " requested a song list. (1)");
 				send(SongDB.getInstance().getSongList());
 				break;
+				
+			case 2:
+				ServerUI.log(nickname + " requested a album list. (2)");
+				send(SongDB.getInstance().getAlbumList());
+				break;
 			
 			case 60:
 				connected = false;
