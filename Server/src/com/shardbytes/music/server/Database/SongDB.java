@@ -1,5 +1,6 @@
 package com.shardbytes.music.server.Database;
 
+import com.shardbytes.music.common.Song;
 import com.shardbytes.music.server.UI.ServerUI;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -14,10 +15,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -41,7 +40,7 @@ public class SongDB{
 	
 	private SongDB(){
 		ServerUI.log("SongDB init");
-		
+		/*
 		if(!databaseFolder.exists() || !databaseFolder.isDirectory()){
 			createNewDatabase(databaseFolder, databaseJSON, true);
 		}
@@ -52,7 +51,7 @@ public class SongDB{
 		}
 		
 		sync(databaseFolder, databaseJSON);
-		
+		*/
 	}
 	
 	private String getDatabaseVersion(File dbfile){

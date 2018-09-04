@@ -1,5 +1,6 @@
 package com.shardbytes.music.server;
 
+import com.shardbytes.music.server.Database.SongDB;
 import com.shardbytes.music.server.UI.ServerUI;
 
 import java.io.IOException;
@@ -59,6 +60,11 @@ public class Client{
 		switch(command){
 			case 0:
 				ServerUI.log("0");
+				break;
+				
+			case 1:
+				ServerUI.log(nickname + " requested a song list. (1)");
+				send(SongDB.getInstance().getSongList());
 				break;
 			
 			case 60:

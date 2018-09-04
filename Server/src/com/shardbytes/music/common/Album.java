@@ -1,4 +1,4 @@
-package com.shardbytes.music.server.Database;
+package com.shardbytes.music.common;
 
 import org.jaudiotagger.tag.images.Artwork;
 import java.util.ArrayList;

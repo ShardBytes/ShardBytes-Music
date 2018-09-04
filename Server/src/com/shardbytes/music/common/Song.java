@@ -1,6 +1,8 @@
-package com.shardbytes.music.server.Database;
+package com.shardbytes.music.common;
 
-public class Song{
+import java.io.Serializable;
+
+public class Song implements Serializable{
 	
 	private String title;
 	private String artist;
