@@ -1,6 +1,7 @@
 package com.shardbytes.music.server;
 
 import com.shardbytes.music.server.UI.ServerUI;
+import com.shardbytes.music.server.Database.SongDB;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -26,6 +27,7 @@ public class Server{
 	 */
 	private void start(){
 		createUI();
+		SongDB.getInstance();
 		
 		Thread serverThread = new Thread(() -> {
 			try{
