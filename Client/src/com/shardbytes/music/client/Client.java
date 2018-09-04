@@ -1,5 +1,6 @@
 package com.shardbytes.music.client;
 
+import com.shardbytes.music.common.Album;
 import com.shardbytes.music.common.Song;
 
 import javax.swing.JButton;
@@ -68,6 +69,13 @@ public class Client{
 		});
 		frame.getContentPane().add(send1);
 		
+		JButton send2 = new JButton("Send 2");
+		send2.addActionListener((e) -> {
+			sendMessage(2);
+			System.out.println(getAlbumList());
+		});
+		frame.getContentPane().add(send2);
+		
 		frame.setVisible(true);
 	}
 	
@@ -105,6 +113,16 @@ public class Client{
 		try{
 			return (ArrayList<Song>)fromServer.readObject();
 		}catch(IOException | ClassNotFoundException e){
+			System.err.println(e.getMessage());
+		}
+		return null;
+	}
+	
+	private ArrayList<Album> getAlbumList(){
+		try{
+			return (ArrayList<Album>)fromServer.readObject();
+		}catch(IOException | ClassNotFoundException e){
+			e.printStackTrace();
 			System.err.println(e.getMessage());
 		}
 		return null;
