@@ -1,5 +1,7 @@
 package com.shardbytes.music.client;
 
+import com.shardbytes.music.common.Song;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -14,6 +16,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class Client{
 	
@@ -58,6 +61,13 @@ public class Client{
 		send0.addActionListener((e) -> sendMessage(0));
 		frame.getContentPane().add(send0);
 		
+		JButton send1 = new JButton("Send 1");
+		send1.addActionListener((e) -> {
+			sendMessage(1);
+			System.out.println(getSongList());
+		});
+		frame.getContentPane().add(send1);
+		
 		frame.setVisible(true);
 	}
 	
@@ -85,6 +95,15 @@ public class Client{
 	private String getMessage(){
 		try{
 			return (String)fromServer.readObject();
+		}catch(IOException | ClassNotFoundException e){
+			System.err.println(e.getMessage());
+		}
+		return null;
+	}
+	
+	private ArrayList<Song> getSongList(){
+		try{
+			return (ArrayList<Song>)fromServer.readObject();
 		}catch(IOException | ClassNotFoundException e){
 			System.err.println(e.getMessage());
 		}
