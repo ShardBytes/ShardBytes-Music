@@ -57,7 +57,7 @@ public class Client{
 		JLabel nicklabel = new JLabel("Nickname:");
 		frame.getContentPane().add(nicklabel);
 		
-		nicknameField = new JTextField("");
+		nicknameField = new JTextField("MacBook Air");
 		nicknameField.setPreferredSize(new Dimension(200, nicknameField.getPreferredSize().height));
 		frame.getContentPane().add(nicknameField);
 		
@@ -77,9 +77,30 @@ public class Client{
 		JButton send2 = new JButton("Send 2");
 		send2.addActionListener((e) -> {
 			sendMessage(2);
-			albumArt.setIcon(new ImageIcon(getScaledImage(new ImageIcon(getAlbumList().get(0).getAlbumArt()).getImage(), 500, 500)));
+			//albumArt.setIcon(new ImageIcon(getScaledImage(new ImageIcon(getAlbumList().get(0).getAlbumArt()).getImage(), 500, 500)));
+			getAlbumList().forEach(album -> System.out.println(album.getTitle()));
+			
 		});
+		
+		JButton send3 = new JButton("Send 3");
+		send3.addActionListener((e) -> {
+			sendMessage(3);
+			sendMessage(nicknameField.getText());
+			Album album = getAlbum();
+			albumArt.setIcon(new ImageIcon(getScaledImage(new ImageIcon(album.getAlbumArt()).getImage(), 500, 500)));
+			System.out.println("album.getTitle() = " + album.getTitle());
+			System.out.println("album.getArtist() = " + album.getArtist());
+			System.out.println("album.getGenre() = " + album.getGenre());
+			System.out.println("album.getYear() = " + album.getYear());
+			album.getSongs().forEach(song -> {
+				System.out.println("song.getTitle() = " + song.getTitle());
+			});
+			System.out.println("songs = " + album.getSongs());
+			
+		});
+		
 		frame.getContentPane().add(send2);
+		frame.getContentPane().add(send3);
 		frame.getContentPane().add(albumArt);
 		
 		frame.setVisible(true);
@@ -138,6 +159,16 @@ public class Client{
 	private ArrayList<Album> getAlbumList(){
 		try{
 			return (ArrayList<Album>)fromServer.readObject();
+		}catch(IOException | ClassNotFoundException e){
+			e.printStackTrace();
+			System.err.println(e.getMessage());
+		}
+		return null;
+	}
+	
+	private Album getAlbum(){
+		try{
+			return (Album)fromServer.readObject();
 		}catch(IOException | ClassNotFoundException e){
 			e.printStackTrace();
 			System.err.println(e.getMessage());

@@ -60,6 +60,7 @@ public class SongDB{
 					if(album.getArtist() == null || album.getArtist().isEmpty() ||
 							album.getGenre() == null || album.getGenre().isEmpty() ||
 							album.getYear() == 0 || album.getAlbumArt() == null){
+						System.out.println("song = " + song.getTitle());
 						String[] tags = getStringFromID3Tag(song.getFile(), FieldKey.ALBUM_ARTIST, FieldKey.GENRE, FieldKey.YEAR);
 						
 						albumSongs.add(song);
@@ -155,6 +156,19 @@ public class SongDB{
 	
 	public ArrayList<Album> getAlbumList(){
 		return allDatabaseAlbums;
+	}
+	
+	public Album getAlbum(String albumTitle){
+		for(int i = 0; i < allDatabaseAlbums.size(); i++){
+			Album album = allDatabaseAlbums.get(i);
+			
+			if(album.getTitle().equals(albumTitle)){
+				return album;
+			}
+			
+		}
+		return null;
+		
 	}
 	
 }

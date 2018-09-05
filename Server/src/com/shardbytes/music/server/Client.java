@@ -71,7 +71,17 @@ public class Client{
 				ServerUI.log(nickname + " requested a album list. (2)");
 				send(SongDB.getInstance().getAlbumList());
 				break;
-			
+				
+			case 3:
+				ServerUI.log(nickname + " requested an album. (3)");
+				try{
+					String albumTitle = (String)fromClient.readObject();
+					send(SongDB.getInstance().getAlbum(albumTitle));
+				}catch(IOException | ClassNotFoundException e){
+					ServerUI.addExceptionMessage(e.getMessage());
+				}
+				break;
+				
 			case 60:
 				connected = false;
 				ServerUI.log(nickname + " disconnected. (60)");
