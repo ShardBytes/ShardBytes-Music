@@ -7,6 +7,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import java.awt.Dimension;
@@ -16,6 +17,8 @@ import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -85,7 +88,8 @@ public class Client{
 		JButton send3 = new JButton("Send 3");
 		send3.addActionListener((e) -> {
 			sendMessage(3);
-			sendMessage(nicknameField.getText());
+			sendMessage(JOptionPane.showInputDialog("Album name:", ""));
+			sendMessage(JOptionPane.showInputDialog("Artist name:", ""));
 			Album album = getAlbum();
 			albumArt.setIcon(new ImageIcon(getScaledImage(new ImageIcon(album.getAlbumArt()).getImage(), 500, 500)));
 			System.out.println("album.getTitle() = " + album.getTitle());
@@ -99,8 +103,19 @@ public class Client{
 			
 		});
 		
+		JButton send4 = new JButton("Send 4");
+		send4.addActionListener((e) -> {
+			sendMessage(4);
+			sendMessage(JOptionPane.showInputDialog("Artist name:", ""));
+			sendMessage(JOptionPane.showInputDialog("Album name:", ""));
+			sendMessage(JOptionPane.showInputDialog("Song title:", ""));
+			getSong();
+			
+		});
+		
 		frame.getContentPane().add(send2);
 		frame.getContentPane().add(send3);
+		frame.getContentPane().add(send4);
 		frame.getContentPane().add(albumArt);
 		
 		frame.setVisible(true);
@@ -119,7 +134,7 @@ public class Client{
 	
 	private void connectToServer(ActionEvent event){
 		try{
-			socket = new Socket("localhost", 8192);
+			socket = new Socket("192.168.100.166", 8192);
 			toServer = new ObjectOutputStream(socket.getOutputStream());
 			fromServer = new ObjectInputStream(socket.getInputStream());
 			
@@ -171,6 +186,15 @@ public class Client{
 			return (Album)fromServer.readObject();
 		}catch(IOException | ClassNotFoundException e){
 			e.printStackTrace();
+			System.err.println(e.getMessage());
+		}
+		return null;
+	}
+	
+	private byte[] getSong(){
+		try{
+			return (byte[])fromServer.readObject();
+		}catch(IOException | ClassNotFoundException e){
 			System.err.println(e.getMessage());
 		}
 		return null;
