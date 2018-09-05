@@ -11,7 +11,6 @@ import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagException;
-import org.jaudiotagger.tag.images.Artwork;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,13 +18,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashSet;
 
 public class SongDB{
 	
 	private static SongDB ourInstance = new SongDB();
 	
-	private File databaseFolder = new File("D:" + File.separator + "ShardBytes Music.sbmd");			//ShardBytes music database
+	private File databaseFolder = new File("/Users/filipsasala/Desktop/ShardBytes Music.sbmd");	//Mac test version
+	//private File databaseFolder = new File("D:" + File.separator + "ShardBytes Music.sbmd");			//ShardBytes music database
 	private File databaseJSON = new File(databaseFolder.toString() + File.separator + "data.sbmj");	//ShardBytes music JSON
 	
 	ArrayList<Song> allDatabaseSongs;	//TODO: Save & load these from file when there is no need to sync stuff
@@ -36,6 +35,7 @@ public class SongDB{
 	}
 	
 	private SongDB(){
+		ServerUI.log(databaseFolder.toString());
 		recreate();
 		
 	}
@@ -78,7 +78,7 @@ public class SongDB{
 			
 		});
 		
-		System.out.println(allAlbums);
+		allDatabaseAlbums = allAlbums;
 		
 	}
 	
@@ -108,12 +108,12 @@ public class SongDB{
 	
 	}
 	
-	private Artwork getAlbumArtFromID3Tag(File mp3file){
+	private byte[] getAlbumArtFromID3Tag(File mp3file){
 		try{
 			AudioFile song = AudioFileIO.read(mp3file);
 			Tag tag = song.getTag();
 			
-			return tag.getFirstArtwork();
+			return tag.getFirstArtwork().getBinaryData();
 			
 		}catch(CannotReadException | TagException | ReadOnlyFileException | InvalidAudioFrameException | IOException e){
 			ServerUI.addExceptionMessage(e.getMessage());

@@ -3,16 +3,19 @@ package com.shardbytes.music.client;
 import com.shardbytes.music.common.Album;
 import com.shardbytes.music.common.Song;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
-import java.awt.BorderLayout;
+import javax.swing.WindowConstants;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -41,7 +44,7 @@ public class Client{
 		JFrame frame = new JFrame("ShardBytes Music client");
 		frame.setSize(800, 600);
 		frame.setLayout(new FlowLayout());
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		
 		JButton connectButton = new JButton("Connect to server");
 		connectButton.addActionListener(this::connectToServer);
@@ -69,19 +72,33 @@ public class Client{
 		});
 		frame.getContentPane().add(send1);
 		
+		JLabel albumArt = new JLabel(new ImageIcon("Client/src/com/shardbytes/music/client/resources/fff.png"));
+		
 		JButton send2 = new JButton("Send 2");
 		send2.addActionListener((e) -> {
 			sendMessage(2);
-			System.out.println(getAlbumList());
+			albumArt.setIcon(new ImageIcon(getScaledImage(new ImageIcon(getAlbumList().get(0).getAlbumArt()).getImage(), 500, 500)));
 		});
 		frame.getContentPane().add(send2);
+		frame.getContentPane().add(albumArt);
 		
 		frame.setVisible(true);
 	}
 	
+	private Image getScaledImage(Image srcImg, int w, int h){
+		BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2 = resizedImg.createGraphics();
+		
+		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		g2.drawImage(srcImg, 0, 0, w, h, null);
+		g2.dispose();
+		
+		return resizedImg;
+	}
+	
 	private void connectToServer(ActionEvent event){
 		try{
-			socket = new Socket("192.168.100.166", 8192);
+			socket = new Socket("localhost", 8192);
 			toServer = new ObjectOutputStream(socket.getOutputStream());
 			fromServer = new ObjectInputStream(socket.getInputStream());
 			

@@ -1,7 +1,5 @@
 package com.shardbytes.music.common;
 
-import org.jaudiotagger.tag.images.Artwork;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -9,7 +7,7 @@ import java.util.Objects;
 public class Album implements Serializable{
 	
 	private ArrayList<Song> songs;
-	private Artwork albumArt;
+	private byte[] albumArt;
 	private String title;
 	private String artist;
 	private String genre;
@@ -24,7 +22,7 @@ public class Album implements Serializable{
 		return songs;
 	}
 	
-	public Artwork getAlbumArt(){
+	public byte[] getAlbumArt(){
 		return albumArt;
 	}
 	
@@ -48,7 +46,7 @@ public class Album implements Serializable{
 		this.songs = songs;
 	}
 	
-	public void setAlbumArt(Artwork albumArt){
+	public void setAlbumArt(byte[] albumArt){
 		this.albumArt = albumArt;
 	}
 	
