@@ -2,6 +2,9 @@ package com.shardbytes.music.client;
 
 import com.shardbytes.music.common.Album;
 import com.shardbytes.music.common.Song;
+import javafx.embed.swing.JFXPanel;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -19,6 +22,9 @@ import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -109,7 +115,21 @@ public class Client{
 			sendMessage(JOptionPane.showInputDialog("Artist name:", ""));
 			sendMessage(JOptionPane.showInputDialog("Album name:", ""));
 			sendMessage(JOptionPane.showInputDialog("Song title:", ""));
-			getSong();
+			
+			try{
+				File temp = File.createTempFile("currentsong", ".sng");
+				FileOutputStream fos = new FileOutputStream(temp);
+				fos.write(getSong());
+				fos.flush();
+				
+				JFXPanel panel = new JFXPanel();
+				Media song = new Media(temp.toString());
+				MediaPlayer mediaPlayer = new MediaPlayer(song);
+				mediaPlayer.play();
+				
+			}catch(IOException ex){
+				System.err.println(ex.getMessage());
+			}
 			
 		});
 		
