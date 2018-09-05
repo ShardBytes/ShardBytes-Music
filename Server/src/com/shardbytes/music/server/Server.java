@@ -31,7 +31,7 @@ public class Server{
 		
 		Thread serverThread = new Thread(() -> {
 			try{
-				ServerSocket server = new ServerSocket(8192, 10, InetAddress.getByName("0.0.0.0"));
+				ServerSocket server = new ServerSocket(8192, 10, InetAddress.getByName("192.168.100.166"));
 				while(ui.getRenderStatus()){
 					Socket clientSocket = server.accept();
 					Client client = new Client(clientSocket);

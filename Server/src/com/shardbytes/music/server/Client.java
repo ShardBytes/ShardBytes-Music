@@ -1,12 +1,18 @@
 package com.shardbytes.music.server;
 
+import com.shardbytes.music.common.Song;
 import com.shardbytes.music.server.Database.SongDB;
 import com.shardbytes.music.server.UI.ServerUI;
 
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class Client{
 	
@@ -76,11 +82,24 @@ public class Client{
 				ServerUI.log(nickname + " requested an album. (3)");
 				try{
 					String albumTitle = (String)fromClient.readObject();
-					send(SongDB.getInstance().getAlbum(albumTitle));
+					String albumAuthor = (String)fromClient.readObject();
+					send(SongDB.getInstance().getAlbum(albumTitle, albumAuthor));
 				}catch(IOException | ClassNotFoundException e){
 					ServerUI.addExceptionMessage(e.getMessage());
 				}
 				break;
+				
+			case 4:
+				ServerUI.log(nickname + " requested a song. (4)");
+				try{
+					String author = (String)fromClient.readObject();
+					String album = (String)fromClient.readObject();
+					String title = (String)fromClient.readObject();
+					send(Files.readAllBytes(SongDB.getInstance().getSong(author, album, title).getFile().toPath()));
+					
+				}catch(IOException | ClassNotFoundException e){
+					ServerUI.addExceptionMessage(e.getMessage());
+				}
 				
 			case 60:
 				connected = false;

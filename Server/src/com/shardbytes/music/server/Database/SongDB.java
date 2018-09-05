@@ -12,6 +12,7 @@ import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagException;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -23,12 +24,11 @@ public class SongDB{
 	
 	private static SongDB ourInstance = new SongDB();
 	
-	private File databaseFolder = new File("/Users/filipsasala/Desktop/ShardBytes Music.sbmd");	//Mac test version
-	//private File databaseFolder = new File("D:" + File.separator + "ShardBytes Music.sbmd");			//ShardBytes music database
-	private File databaseJSON = new File(databaseFolder.toString() + File.separator + "data.sbmj");	//ShardBytes music JSON
+	//private File databaseFolder = new File("/Users/filipsasala/Desktop/ShardBytes Music.sbmd");				//Mac test version
+	private File databaseFolder = new File("D:" + File.separator + "ShardBytes Music.sbmd");			//ShardBytes music database
 	
-	ArrayList<Song> allDatabaseSongs;	//TODO: Save & load these from file when there is no need to sync stuff
-	ArrayList<Album> allDatabaseAlbums;
+	private ArrayList<Song> allDatabaseSongs;	//TODO: Save & load these from file when there is no need to sync stuff
+	private ArrayList<Album> allDatabaseAlbums;
 	
 	public static SongDB getInstance(){
 		return ourInstance;
@@ -41,7 +41,7 @@ public class SongDB{
 	}
 	
 	private void recreate(){
-		ArrayList<Song> allSongs = getSongList();
+		ArrayList<Song> allSongs = readAllSongs();
 		ArrayList<Album> allAlbums = new ArrayList<>();
 		
 		allSongs.forEach(song -> {
@@ -60,13 +60,13 @@ public class SongDB{
 					if(album.getArtist() == null || album.getArtist().isEmpty() ||
 							album.getGenre() == null || album.getGenre().isEmpty() ||
 							album.getYear() == 0 || album.getAlbumArt() == null){
-						System.out.println("song = " + song.getTitle());
 						String[] tags = getStringFromID3Tag(song.getFile(), FieldKey.ALBUM_ARTIST, FieldKey.GENRE, FieldKey.YEAR);
 						
-						albumSongs.add(song);
-						album.setArtist(tags[0]);
-						album.setGenre(tags[1]);
-						album.setYear(Integer.parseInt(tags[2]));
+						if(tags != null){
+							album.setArtist(tags[0]);
+							album.setGenre(tags[1]);
+							album.setYear(Integer.parseInt(tags[2]));
+						}
 						album.setAlbumArt(getAlbumArtFromID3Tag(song.getFile()));
 						
 					}
@@ -79,6 +79,7 @@ public class SongDB{
 			
 		});
 		
+		allDatabaseSongs = allSongs;
 		allDatabaseAlbums = allAlbums;
 		
 	}
@@ -122,7 +123,7 @@ public class SongDB{
 		return null;
 	}
 	
-	public ArrayList<Song> getSongList(){
+	private ArrayList<Song> readAllSongs(){
 		ArrayList<Song> songlist = new ArrayList<>();
 		File[] artists = databaseFolder.listFiles(File::isDirectory);
 		
@@ -137,7 +138,10 @@ public class SongDB{
 						if(songs != null){
 							for(File song : songs){
 								String[] tags = getStringFromID3Tag(song, FieldKey.TITLE, FieldKey.ARTIST, FieldKey.ALBUM);
-								songlist.add(new Song(tags[0], tags[1], tags[2], song));
+								if(tags != null){
+									songlist.add(new Song(tags[0], tags[1], tags[2], song));
+									
+								}
 								
 							}
 							
@@ -158,12 +162,27 @@ public class SongDB{
 		return allDatabaseAlbums;
 	}
 	
-	public Album getAlbum(String albumTitle){
-		for(int i = 0; i < allDatabaseAlbums.size(); i++){
-			Album album = allDatabaseAlbums.get(i);
-			
-			if(album.getTitle().equals(albumTitle)){
+	public ArrayList<Song> getSongList(){
+		return allDatabaseSongs;
+	}
+	
+	public Album getAlbum(String albumTitle, String albumArtist){
+		for(Album album : allDatabaseAlbums){
+			if(album.getTitle().equals(albumTitle) && album.getArtist().equals(albumArtist)){
 				return album;
+				
+			}
+			
+		}
+		return null;
+		
+	}
+	
+	public Song getSong(String artist, String album, String title){
+		for(Song song : allDatabaseSongs){
+			if(song.getArtist().equals(artist) && song.getAlbum().equals(album) && song.getTitle().equals(title)){
+				return song;
+				
 			}
 			
 		}
