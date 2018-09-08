@@ -7,10 +7,11 @@
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tab?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<JFXTabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #303030;" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<JFXTabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #303030;" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.shardbytes.music.client.PlayerController">
    <tabs>
       <Tab text="Player">
         <content>
@@ -18,7 +19,7 @@
                <children>
                   <Label fx:id="songLabel" alignment="CENTER" layoutX="214.0" layoutY="177.0" prefHeight="17.0" prefWidth="172.0" text="Current song" textAlignment="CENTER" textFill="WHITE" />
                   <Label fx:id="albumLabel" alignment="CENTER" layoutX="214.0" layoutY="194.0" prefHeight="17.0" prefWidth="172.0" text="Author - album" textAlignment="CENTER" textFill="#ffffffb3" />
-                  <JFXButton fx:id="playButton" layoutX="250.0" layoutY="223.0" prefHeight="27.0" prefWidth="100.0" style="-fx-background-color: #3E50B4;" text="Play/Pause" textFill="WHITE">
+                  <JFXButton fx:id="playButton" layoutX="250.0" layoutY="223.0" onAction="#playButtonClicked" prefHeight="27.0" prefWidth="100.0" style="-fx-background-color: #3E50B4;" text="Play/Pause" textFill="WHITE">
                      <graphic>
                         <FontAwesomeIconView fill="WHITE" glyphName="PLAY" />
                      </graphic>
@@ -33,7 +34,10 @@
                         <FontAwesomeIconView fill="WHITE" glyphName="CHEVRON_RIGHT" />
                      </graphic>
                   </JFXButton>
-                  <ImageView fitHeight="145.0" fitWidth="145.0" layoutX="228.0" layoutY="21.0" pickOnBounds="true" />
+                  <ImageView fitHeight="145.0" fitWidth="145.0" layoutX="228.0" layoutY="21.0" pickOnBounds="true">
+                     <image>
+                        <Image url="@resources/empty.png" />
+                     </image></ImageView>
                </children>
             </AnchorPane>
         </content>
