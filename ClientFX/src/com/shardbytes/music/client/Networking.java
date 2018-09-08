@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -19,6 +18,9 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 
 public class Networking{
+	
+	private static Networking instance = new Networking();
+	private Networking(){}
 	
 	private Socket socket;
 	private ObjectOutputStream toServer;
@@ -30,7 +32,7 @@ public class Networking{
 	
 	private PublicKey serverKey;
 	
-	void login(String name, String password) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
+	boolean login(String name, String password) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, ClassNotFoundException{
 		socket = new Socket("192.168.100.166", 8192);
 		toServer = new ObjectOutputStream(socket.getOutputStream());
 		fromServer = new ObjectInputStream(socket.getInputStream());
@@ -45,7 +47,7 @@ public class Networking{
 		send(encrypt(privateKey, name));
 		send(encrypt(privateKey, password));
 		
-		
+		return reconstructObject(decrypt(serverKey, getMessage()), Boolean.class);
 		
 	}
 	
@@ -55,6 +57,16 @@ public class Networking{
 		}catch(IOException e){
 			System.err.println(e.getMessage()); //TODO: Better error handling system!
 		}
+		
+	}
+	
+	private byte[] getMessage(){
+		try{
+			return (byte[])fromServer.readObject();
+		}catch(IOException | ClassNotFoundException e){
+			System.err.println(e.getMessage());
+		}
+		return null;
 		
 	}
 	
@@ -102,6 +114,10 @@ public class Networking{
 		
 		return typeClass.cast(objectInputStream.readObject());
 		
+	}
+	
+	public static Networking getInstance(){
+		return instance;
 	}
 	
 }

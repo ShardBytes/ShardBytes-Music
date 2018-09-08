@@ -74,6 +74,7 @@ public class JFXPlayer extends Application{
 			loginDialog.heightProperty().removeListener(heightListener);
 		}));
 		
+		dialogController.registerReference(loginDialog, root);
 		loginDialog.showAndWait();
 		
 	}
