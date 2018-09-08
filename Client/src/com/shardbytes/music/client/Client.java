@@ -116,16 +116,25 @@ public class Client{
 			sendMessage(JOptionPane.showInputDialog("Album name:", ""));
 			sendMessage(JOptionPane.showInputDialog("Song title:", ""));
 			
+			System.out.println("communication done");
 			try{
-				File temp = File.createTempFile("currentsong", ".sng");
+				File temp = new File("/Users/filipsasala/Desktop/currentsong.sng");
+				temp.createNewFile();
+				temp.deleteOnExit();
 				FileOutputStream fos = new FileOutputStream(temp);
+				System.out.println("file created");
 				fos.write(getSong());
 				fos.flush();
+				System.out.println("downloaded");
 				
 				JFXPanel panel = new JFXPanel();
-				Media song = new Media(temp.toString());
+				System.out.println(panel.getPreferredSize());
+				Media song = new Media(temp.toURI().toURL().toExternalForm());
 				MediaPlayer mediaPlayer = new MediaPlayer(song);
+				mediaPlayer.setMute(false);
 				mediaPlayer.play();
+				System.out.println(song.getMetadata());
+				System.out.println("should be playing");
 				
 			}catch(IOException ex){
 				System.err.println(ex.getMessage());
