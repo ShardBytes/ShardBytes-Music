@@ -19,7 +19,7 @@ public class LoginDialogController{
 	}
 	
 	@FXML private void cancelClicked(){
-		Platform.exit();
+		System.exit(0);
 	}
 	
 }
