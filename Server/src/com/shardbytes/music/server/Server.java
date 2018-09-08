@@ -1,5 +1,6 @@
 package com.shardbytes.music.server;
 
+import com.shardbytes.music.server.Database.PasswordDB;
 import com.shardbytes.music.server.UI.ServerUI;
 import com.shardbytes.music.server.Database.SongDB;
 
@@ -28,6 +29,7 @@ public class Server{
 	private void start(){
 		createUI();
 		SongDB.getInstance();
+		PasswordDB.getInstance()/*.register("plajdo", "heslo".toCharArray())*/;
 		
 		Thread serverThread = new Thread(() -> {
 			try{

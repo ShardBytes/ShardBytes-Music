@@ -10,6 +10,7 @@ import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
+import com.shardbytes.music.server.Database.PasswordDB;
 import com.shardbytes.music.server.Server;
 
 import java.awt.*;
@@ -60,6 +61,7 @@ public final class ServerUI{
 	}
 	
 	public void stop(){
+		PasswordDB.getInstance().save();
 		render = false;
 	}
 	
