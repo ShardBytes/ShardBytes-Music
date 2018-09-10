@@ -5,49 +5,68 @@ import com.jfoenix.controls.JFXPasswordField;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
-import java.net.URL;
-import java.util.ResourceBundle;
+import java.util.stream.IntStream;
 
-public class LoginDialogController implements Initializable{
+public class LoginDialogController{
 	
 	private Stage dialogStage;
 	private Parent mainWindowStage;
+	
+	private boolean loginState;
 	
 	@FXML private JFXPasswordField passwordField;
 	@FXML private JFXTextField usernameField;
 	@FXML private JFXButton loginButton;
 	@FXML private JFXButton cancelButton;
-	@FXML private ProgressIndicator loginIndicator;
-	
-	@Override
-	public void initialize(URL location, ResourceBundle resources){
-		loginIndicator.setOpacity(0);
-	}
+	@FXML private AnchorPane anchorPane;
 	
 	@FXML private void loginClicked(){
-		usernameField.setOpacity(0);
-		passwordField.setOpacity(0);
-		loginButton.setOpacity(0);
-		cancelButton.setOpacity(0);
-		loginIndicator.setOpacity(1);
-		
 		String nickname = usernameField.getText();
 		String password = passwordField.getText();
+		
+		ProgressIndicator progressIndicator = new ProgressIndicator();
+		progressIndicator.setProgress(-1);
+		progressIndicator.setLayoutX(124);
+		progressIndicator.setLayoutY(64);
+		
+		anchorPane.getChildren().remove(0, 6);
+		anchorPane.getChildren().add(progressIndicator);
 		
 		new Thread(() -> {
 			try{
 				boolean successful = Networking.getInstance().login(nickname, password);
 				if(successful){
+					setLoginState(true);
 					Platform.runLater(() -> {
-						dialogStage.close();
 						mainWindowStage.setEffect(null);
+						dialogStage.close();
 					});
 					
+				}else{
+					setLoginState(false);
+					Platform.runLater(() -> {
+						Label wrongPasswordLabel = new Label("Wrong password!");
+						wrongPasswordLabel.setLayoutX(96);
+						wrongPasswordLabel.setLayoutY(64);
+						wrongPasswordLabel.setStyle("-fx-text-fill: #FFFFFF");
+						
+						JFXButton retryButton = new JFXButton("Try again");
+						retryButton.setLayoutX(113);
+						retryButton.setLayoutY(100);
+						retryButton.setButtonType(JFXButton.ButtonType.RAISED);
+						retryButton.setStyle("-fx-text-fill: #FFFFFF;" + "-fx-background-color: #3E50B4");
+						retryButton.setOnAction((event -> dialogStage.close()));
+						
+						anchorPane.getChildren().remove(progressIndicator);
+						anchorPane.getChildren().add(wrongPasswordLabel);
+						anchorPane.getChildren().add(retryButton);
+					});
 				}
 				
 			}catch(Exception e){
@@ -66,6 +85,14 @@ public class LoginDialogController implements Initializable{
 		dialogStage = loginDialogStage;
 		mainWindowStage = root;
 		
+	}
+	
+	public boolean getLoginState(){
+		return loginState;
+	}
+	
+	private void setLoginState(boolean loginState){
+		this.loginState = loginState;
 	}
 	
 }
