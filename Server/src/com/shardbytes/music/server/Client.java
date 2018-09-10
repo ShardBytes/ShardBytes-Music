@@ -10,6 +10,8 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.ByteArrayInputStream;
@@ -19,15 +21,18 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 public class Client{
 	
@@ -41,8 +46,8 @@ public class Client{
 	private PublicKey publicKey;
 	private PrivateKey privateKey;
 	
-	private KeyGenerator generator;
 	private SecretKey secKey;
+	private SecretKey clientAESKey;
 	
 	private PublicKey clientKey;
 	
@@ -57,12 +62,16 @@ public class Client{
 			publicKey = keyPair.getPublic();
 			privateKey = keyPair.getPrivate();
 			
-			generator = KeyGenerator.getInstance("AES");
-			generator.init(512);
-			secKey = generator.generateKey();
+			SecureRandom random = new SecureRandom();
+			byte[] aesKey = new byte[16];
+			random.nextBytes(aesKey);
+			secKey = new SecretKeySpec(aesKey, "AES");
 			
 			clientKey = getClientPublicKey();
 			send(publicKey);
+			
+			clientAESKey = getClientAESKey();
+			send(encrypt(privateKey, aesKey));
 			
 			String name = reconstructObject(decrypt(clientKey, getMessage()), String.class);
 			char[] password = reconstructObject(decrypt(clientKey, getMessage()), String.class).toCharArray();
@@ -94,7 +103,7 @@ public class Client{
 					
 				}
 				
-			}catch(IOException | ClassNotFoundException | NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e){
+			}catch(IOException | ClassNotFoundException | NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException e){
 				ServerUI.addExceptionMessage(e.getMessage());
 			}
 			
@@ -103,7 +112,7 @@ public class Client{
 		
 	}
 	
-	private void processCommand(byte command) throws NoSuchAlgorithmException, IOException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException{
+	private void processCommand(byte command) throws NoSuchAlgorithmException, IOException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException{
 		switch(command){
 			case 0:
 				ServerUI.log("0");
@@ -111,7 +120,7 @@ public class Client{
 				
 			case 1:
 				ServerUI.log(nickname + " requested a song list. (1)");
-				send(encrypt(privateKey, SongDB.getInstance().getSongList()));
+				send(encryptAES(secKey, SongDB.getInstance().getSongList()));
 				break;
 				
 			case 2:
@@ -160,6 +169,17 @@ public class Client{
 		
 	}
 	
+	private SecretKey getClientAESKey(){
+		try{
+			byte[] decryptedKey = decrypt(clientKey, getMessage());
+			return new SecretKeySpec(decryptedKey, "AES");
+		}catch(NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e){
+			ServerUI.addExceptionMessage(e.getMessage());
+		}
+		return null;
+		
+	}
+	
 	private KeyPair buildKeyPair() throws NoSuchAlgorithmException{
 		final int keySize = 2048;
 		KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
@@ -193,7 +213,7 @@ public class Client{
 		ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
 		objectOutputStream.writeObject(message);
 		
-		Cipher aesCipher = Cipher.getInstance("AES");
+		Cipher aesCipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
 		aesCipher.init(Cipher.ENCRYPT_MODE, secKey);
 		
 		return aesCipher.doFinal(byteArrayOutputStream.toByteArray());
@@ -201,7 +221,7 @@ public class Client{
 	}
 	
 	private byte[] decryptAES(SecretKey originalKey, byte[] encryptedData) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException{
-		Cipher aesCipher = Cipher.getInstance("AES");
+		Cipher aesCipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
 		aesCipher.init(Cipher.DECRYPT_MODE, originalKey);
 		
 		return aesCipher.doFinal(encryptedData);
