@@ -8,6 +8,8 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -21,6 +23,9 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Client{
 	
@@ -60,6 +65,8 @@ public class Client{
 				connected = false;
 			}
 			
+			
+			
 		}catch(Exception e){
 			ServerUI.addExceptionMessage(e.getMessage());
 		}
@@ -72,12 +79,12 @@ public class Client{
 				ServerUI.log(nickname + " connected.");
 				
 				while(connected){
-					byte command = ((Integer)fromClient.readObject()).byteValue();
+					byte command = reconstructObject(decrypt(clientKey, getMessage()), Integer.class).byteValue();
 					processCommand(command);
 					
 				}
 				
-			}catch(IOException | ClassNotFoundException e){
+			}catch(IOException | ClassNotFoundException | NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e){
 				ServerUI.addExceptionMessage(e.getMessage());
 			}
 			
@@ -86,7 +93,7 @@ public class Client{
 		
 	}
 	
-	private void processCommand(byte command){
+	private void processCommand(byte command) throws NoSuchAlgorithmException, IOException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException{
 		switch(command){
 			case 0:
 				ServerUI.log("0");
@@ -94,7 +101,7 @@ public class Client{
 				
 			case 1:
 				ServerUI.log(nickname + " requested a song list. (1)");
-				send(SongDB.getInstance().getSongList());
+				send(encrypt(privateKey, SongDB.getInstance().getSongList()));
 				break;
 				
 			case 2:
@@ -159,7 +166,32 @@ public class Client{
 		Cipher cipher = Cipher.getInstance("RSA");
 		cipher.init(Cipher.ENCRYPT_MODE, privateKey);
 		
-		return cipher.doFinal(byteArrayOutputStream.toByteArray());
+		int maximumCipherableSize = 245;
+		
+		byte[] byteOutput = byteArrayOutputStream.toByteArray();
+		if(byteOutput.length < maximumCipherableSize){
+			return cipher.doFinal(byteOutput);
+			
+		}else{
+			List<byte[]> parts = splitArray(byteOutput, maximumCipherableSize);
+			for(int i = 0; i < parts.size(); i++){
+				byte[] part = parts.get(i);
+				parts.set(i, cipher.doFinal(part));
+				
+			}
+			
+			byte[] cipheredArray = new byte[byteOutput.length];
+			for(int i = 0; i < parts.size(); i++){
+				byte[] part = parts.get(i);
+				for(int j = 0; j < part.length; j++){
+					cipheredArray[i * maximumCipherableSize + j] = part[j];
+					
+				}
+				
+			}
+			return cipheredArray;
+			
+		}
 		
 	}
 	
@@ -167,7 +199,31 @@ public class Client{
 		Cipher cipher = Cipher.getInstance("RSA");
 		cipher.init(Cipher.DECRYPT_MODE, publicKey);
 		
-		return cipher.doFinal(encryptedData);
+		int maximumCipherableSize = 245;
+		
+		if(encryptedData.length < 245){
+			return cipher.doFinal(encryptedData);
+			
+		}else{
+			List<byte[]> parts = splitArray(encryptedData, maximumCipherableSize);
+			for(int i = 0; i < parts.size(); i++){
+				byte[] part = parts.get(i);
+				parts.set(i, cipher.doFinal(part));
+				
+			}
+			
+			byte[] decipheredArray = new byte[encryptedData.length];
+			for(int i = 0; i < parts.size(); i++){
+				byte[] part = parts.get(i);
+				for(int j = 0; j < part.length; j++){
+					decipheredArray[i * maximumCipherableSize + j] = part[j];
+					
+				}
+				
+			}
+			return decipheredArray;
+			
+		}
 		
 	}
 	
@@ -176,6 +232,30 @@ public class Client{
 		ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
 		
 		return typeClass.cast(objectInputStream.readObject());
+		
+	}
+	
+	private List<byte[]> splitArray(byte[] array, int maxSize){
+		int oneLength = array.length / maxSize;
+		int remainder = array.length % maxSize;
+		
+		int lower = 0;
+		int upper = 0;
+		
+		List<byte[]> list = new ArrayList<>();
+		
+		for(int i = 0; i < oneLength; i++){
+			upper += maxSize;
+			list.add(Arrays.copyOfRange(array, lower, upper));
+			lower = upper;
+			
+		}
+		
+		if(remainder > 0){
+			list.add(Arrays.copyOfRange(array, lower, lower + remainder));
+			
+		}
+		return list;
 		
 	}
 	
