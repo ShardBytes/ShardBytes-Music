@@ -1,20 +1,18 @@
 package com.shardbytes.music.client;
 
-import com.oracle.tools.packager.Log;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.GaussianBlur;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import javax.swing.JOptionPane;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class JFXPlayer extends Application{
 	
@@ -40,6 +38,11 @@ public class JFXPlayer extends Application{
 		primaryStage.setResizable(false);
 		primaryStage.show();
 		
+		createLoginDialog(primaryStage);
+		
+	}
+	
+	private void createLoginDialog(Stage primaryStage) throws IOException{
 		Stage loginDialog = new Stage(StageStyle.TRANSPARENT);
 		FXMLLoader dialogLoader = new FXMLLoader(getClass().getResource("LoginDialog.fxml"));
 		Parent dialogRoot = dialogLoader.load();
@@ -75,7 +78,15 @@ public class JFXPlayer extends Application{
 		}));
 		
 		dialogController.registerReference(loginDialog, root);
+		
+		AtomicBoolean successfulLogin = new AtomicBoolean(false);
+		loginDialog.setOnHiding((event) -> successfulLogin.set(dialogController.getLoginState()));
+		
 		loginDialog.showAndWait();
+		
+		if(!successfulLogin.get()){
+			createLoginDialog(primaryStage);
+		}
 		
 	}
 	

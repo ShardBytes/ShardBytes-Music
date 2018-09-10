@@ -54,8 +54,8 @@
         <content>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
-                  <JFXTextField focusColor="#3e50b4" labelFloat="true" layoutX="225.0" layoutY="19.0" promptText="Search" style="-fx-text-fill: #FFFFFF;" unFocusColor="#3e52b4" />
-                  <JFXListView layoutX="38.0" layoutY="59.0" prefHeight="290.0" prefWidth="524.0" style="-fx-background-color: #424242;" />
+                  <JFXTextField fx:id="searchTextField" focusColor="#3e50b4" labelFloat="true" layoutX="225.0" layoutY="19.0" onAction="#doSearch" promptText="Search" style="-fx-text-fill: #FFFFFF;" unFocusColor="#3e52b4" />
+                  <JFXListView fx:id="searchResultsList" layoutX="38.0" layoutY="59.0" prefHeight="290.0" prefWidth="524.0" style="-fx-background-color: #424242;" />
                </children></AnchorPane>
         </content>
       </Tab>

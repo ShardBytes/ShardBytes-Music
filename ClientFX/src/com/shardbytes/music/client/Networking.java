@@ -1,5 +1,7 @@
 package com.shardbytes.music.client;
 
+import com.shardbytes.music.common.Album;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -16,6 +18,7 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.ArrayList;
 
 public class Networking{
 	
@@ -48,6 +51,16 @@ public class Networking{
 		send(encrypt(privateKey, password));
 		
 		return reconstructObject(decrypt(serverKey, getMessage()), Boolean.class);
+		
+	}
+	
+	ArrayList<Album> getAllAlbums() throws NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, IOException, ClassNotFoundException{
+		if(socket != null){
+			send(encrypt(privateKey, 2));
+			return reconstructObject(decrypt(publicKey, getMessage()), ArrayList.class);
+			
+		}
+		return null;
 		
 	}
 	
