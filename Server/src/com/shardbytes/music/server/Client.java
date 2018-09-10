@@ -7,7 +7,9 @@ import com.shardbytes.music.server.UI.ServerUI;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.ByteArrayInputStream;
@@ -39,6 +41,9 @@ public class Client{
 	private PublicKey publicKey;
 	private PrivateKey privateKey;
 	
+	private KeyGenerator generator;
+	private SecretKey secKey;
+	
 	private PublicKey clientKey;
 	
 	public Client(Socket clientSocket){
@@ -52,6 +57,10 @@ public class Client{
 			publicKey = keyPair.getPublic();
 			privateKey = keyPair.getPrivate();
 			
+			generator = KeyGenerator.getInstance("AES");
+			generator.init(512);
+			secKey = generator.generateKey();
+			
 			clientKey = getClientPublicKey();
 			send(publicKey);
 			
@@ -60,6 +69,7 @@ public class Client{
 			
 			if(PasswordDB.getInstance().auth(name, password)){
 				send(encrypt(privateKey, true));
+				send(encrypt(privateKey, secKey));
 			}else{
 				send(encrypt(privateKey, false));
 				connected = false;
@@ -166,32 +176,7 @@ public class Client{
 		Cipher cipher = Cipher.getInstance("RSA");
 		cipher.init(Cipher.ENCRYPT_MODE, privateKey);
 		
-		int maximumCipherableSize = 245;
-		
-		byte[] byteOutput = byteArrayOutputStream.toByteArray();
-		if(byteOutput.length < maximumCipherableSize){
-			return cipher.doFinal(byteOutput);
-			
-		}else{
-			List<byte[]> parts = splitArray(byteOutput, maximumCipherableSize);
-			for(int i = 0; i < parts.size(); i++){
-				byte[] part = parts.get(i);
-				parts.set(i, cipher.doFinal(part));
-				
-			}
-			
-			byte[] cipheredArray = new byte[byteOutput.length];
-			for(int i = 0; i < parts.size(); i++){
-				byte[] part = parts.get(i);
-				for(int j = 0; j < part.length; j++){
-					cipheredArray[i * maximumCipherableSize + j] = part[j];
-					
-				}
-				
-			}
-			return cipheredArray;
-			
-		}
+		return cipher.doFinal(byteArrayOutputStream.toByteArray());
 		
 	}
 	
@@ -199,31 +184,27 @@ public class Client{
 		Cipher cipher = Cipher.getInstance("RSA");
 		cipher.init(Cipher.DECRYPT_MODE, publicKey);
 		
-		int maximumCipherableSize = 245;
+		return cipher.doFinal(encryptedData);
 		
-		if(encryptedData.length < 245){
-			return cipher.doFinal(encryptedData);
-			
-		}else{
-			List<byte[]> parts = splitArray(encryptedData, maximumCipherableSize);
-			for(int i = 0; i < parts.size(); i++){
-				byte[] part = parts.get(i);
-				parts.set(i, cipher.doFinal(part));
-				
-			}
-			
-			byte[] decipheredArray = new byte[encryptedData.length];
-			for(int i = 0; i < parts.size(); i++){
-				byte[] part = parts.get(i);
-				for(int j = 0; j < part.length; j++){
-					decipheredArray[i * maximumCipherableSize + j] = part[j];
-					
-				}
-				
-			}
-			return decipheredArray;
-			
-		}
+	}
+	
+	private byte[] encryptAES(SecretKey secKey, Object message) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+		objectOutputStream.writeObject(message);
+		
+		Cipher aesCipher = Cipher.getInstance("AES");
+		aesCipher.init(Cipher.ENCRYPT_MODE, secKey);
+		
+		return aesCipher.doFinal(byteArrayOutputStream.toByteArray());
+		
+	}
+	
+	private byte[] decryptAES(SecretKey originalKey, byte[] encryptedData) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException{
+		Cipher aesCipher = Cipher.getInstance("AES");
+		aesCipher.init(Cipher.DECRYPT_MODE, originalKey);
+		
+		return aesCipher.doFinal(encryptedData);
 		
 	}
 	
@@ -232,30 +213,6 @@ public class Client{
 		ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
 		
 		return typeClass.cast(objectInputStream.readObject());
-		
-	}
-	
-	private List<byte[]> splitArray(byte[] array, int maxSize){
-		int oneLength = array.length / maxSize;
-		int remainder = array.length % maxSize;
-		
-		int lower = 0;
-		int upper = 0;
-		
-		List<byte[]> list = new ArrayList<>();
-		
-		for(int i = 0; i < oneLength; i++){
-			upper += maxSize;
-			list.add(Arrays.copyOfRange(array, lower, upper));
-			lower = upper;
-			
-		}
-		
-		if(remainder > 0){
-			list.add(Arrays.copyOfRange(array, lower, lower + remainder));
-			
-		}
-		return list;
 		
 	}
 	
