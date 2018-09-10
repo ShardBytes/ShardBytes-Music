@@ -18,8 +18,8 @@ public class PlayerController{
 		
 	}
 	
-	@FXML private void doSearch(){
-		
+	@FXML private void doSearch() throws Exception{
+		System.out.println(Networking.getInstance().getAllSongs());
 	}
 	
 }

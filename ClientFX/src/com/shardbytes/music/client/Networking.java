@@ -1,24 +1,34 @@
 package com.shardbytes.music.client;
 
 import com.shardbytes.music.common.Album;
+import com.shardbytes.music.common.Song;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 public class Networking{
 	
@@ -33,6 +43,9 @@ public class Networking{
 	private PublicKey publicKey;
 	private PrivateKey privateKey;
 	
+	private SecretKey secKey;
+	private SecretKey serverAESKey;
+	
 	private PublicKey serverKey;
 	
 	boolean login(String name, String password) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, ClassNotFoundException{
@@ -44,8 +57,16 @@ public class Networking{
 		publicKey = keyPair.getPublic();
 		privateKey = keyPair.getPrivate();
 		
+		SecureRandom random = new SecureRandom();
+		byte[] aesKey = new byte[16];
+		random.nextBytes(aesKey);
+		secKey = new SecretKeySpec(aesKey, "AES");
+		
 		send(publicKey);
 		serverKey = getServerPublicKey();
+		
+		send(encrypt(privateKey, aesKey));
+		serverAESKey = getServerAESKey();
 		
 		send(encrypt(privateKey, name));
 		send(encrypt(privateKey, password));
@@ -58,6 +79,16 @@ public class Networking{
 		if(socket != null){
 			send(encrypt(privateKey, 2));
 			return reconstructObject(decrypt(publicKey, getMessage()), ArrayList.class);
+			
+		}
+		return null;
+		
+	}
+	
+	ArrayList<Song> getAllSongs() throws NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, IOException, ClassNotFoundException, InvalidAlgorithmParameterException{
+		if(socket != null){
+			send(encrypt(privateKey, 1));
+			return reconstructObject(decryptAES(serverAESKey, getMessage()), ArrayList.class);
 			
 		}
 		return null;
@@ -93,6 +124,18 @@ public class Networking{
 		
 	}
 	
+	private SecretKey getServerAESKey(){
+		try{
+			byte[] decryptedKey = decrypt(serverKey, getMessage());
+			byte[] trimmed = Arrays.copyOfRange(decryptedKey, decryptedKey.length - 16, decryptedKey.length);
+			return new SecretKeySpec(trimmed, "AES");
+		}catch(NoSuchPaddingException | NoSuchAlgorithmException | IllegalBlockSizeException | InvalidKeyException | BadPaddingException e){
+			System.err.println(e.getMessage());
+		}
+		return null;
+		
+	}
+	
 	private KeyPair buildKeyPair() throws NoSuchAlgorithmException{
 		final int keySize = 2048;
 		KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
@@ -101,7 +144,7 @@ public class Networking{
 		
 	}
 	
-	private byte[] encrypt(PrivateKey privateKey, Object message) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException{
+	private byte[] encrypt(PrivateKey privateKey, Object message) throws NoSuchAlgorithmException, IOException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException{
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
 		objectOutputStream.writeObject(message);
@@ -113,11 +156,31 @@ public class Networking{
 		
 	}
 	
-	private byte[] decrypt(PublicKey publicKey, byte[] encryptedData) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
+	private byte[] decrypt(PublicKey publicKey, byte[] encryptedData) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
 		Cipher cipher = Cipher.getInstance("RSA");
 		cipher.init(Cipher.DECRYPT_MODE, publicKey);
 		
 		return cipher.doFinal(encryptedData);
+		
+	}
+	
+	private byte[] encryptAES(SecretKey secKey, Object message) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+		objectOutputStream.writeObject(message);
+		
+		Cipher aesCipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+		aesCipher.init(Cipher.ENCRYPT_MODE, secKey);
+		
+		return aesCipher.doFinal(byteArrayOutputStream.toByteArray());
+		
+	}
+	
+	private byte[] decryptAES(SecretKey originalKey, byte[] encryptedData) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException{
+		Cipher aesCipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+		aesCipher.init(Cipher.DECRYPT_MODE, originalKey);
+		
+		return aesCipher.doFinal(encryptedData);
 		
 	}
 	
