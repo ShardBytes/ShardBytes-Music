@@ -46,9 +46,6 @@ public class Client{
 	private PublicKey publicKey;
 	private PrivateKey privateKey;
 	
-	private SecretKey secKey;
-	private SecretKey clientAESKey;
-	
 	private PublicKey clientKey;
 	
 	public Client(Socket clientSocket){
@@ -62,23 +59,14 @@ public class Client{
 			publicKey = keyPair.getPublic();
 			privateKey = keyPair.getPrivate();
 			
-			SecureRandom random = new SecureRandom();
-			byte[] aesKey = new byte[16];
-			random.nextBytes(aesKey);
-			secKey = new SecretKeySpec(aesKey, "AES");
-			
 			clientKey = getClientPublicKey();
 			send(publicKey);
-			
-			clientAESKey = getClientAESKey();
-			send(encrypt(privateKey, aesKey));
 			
 			String name = reconstructObject(decrypt(clientKey, getMessage()), String.class);
 			char[] password = reconstructObject(decrypt(clientKey, getMessage()), String.class).toCharArray();
 			
 			if(PasswordDB.getInstance().auth(name, password)){
 				send(encrypt(privateKey, true));
-				send(encrypt(privateKey, secKey));
 			}else{
 				send(encrypt(privateKey, false));
 				connected = false;
@@ -114,21 +102,51 @@ public class Client{
 	
 	private void processCommand(byte command) throws NoSuchAlgorithmException, IOException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException{
 		switch(command){
-			case 0:
+			case 0:{
 				ServerUI.log("0");
 				break;
 				
-			case 1:
+			}
+			
+			case 1:{
 				ServerUI.log(nickname + " requested a song list. (1)");
-				send(encryptAES(secKey, SongDB.getInstance().getSongList()));
+				
+				KeyGenerator generator = KeyGenerator.getInstance("AES");
+				generator.init(128);
+				SecretKey secKey = generator.generateKey();
+				
+				SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
+				byte[] ivBytes = new byte[16];
+				secureRandom.nextBytes(ivBytes);
+				IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
+				
+				send(encrypt(privateKey, ivBytes));
+				send(encrypt(privateKey, secKey.getEncoded()));
+				send(encryptAES(secKey, ivParameterSpec, SongDB.getInstance().getSongList()));
 				break;
 				
-			case 2:
+			}
+				
+			case 2:{
 				ServerUI.log(nickname + " requested a album list. (2)");
-				send(SongDB.getInstance().getAlbumList());
+				
+				KeyGenerator generator = KeyGenerator.getInstance("AES");
+				generator.init(128);
+				SecretKey secKey = generator.generateKey();
+				
+				SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
+				byte[] ivBytes = new byte[16];
+				secureRandom.nextBytes(ivBytes);
+				IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
+				
+				send(encrypt(privateKey, ivBytes));
+				send(encrypt(privateKey, secKey.getEncoded()));
+				send(encryptAES(secKey, ivParameterSpec, SongDB.getInstance().getAlbumList()));
 				break;
 				
-			case 3:
+			}
+				
+			case 3:{
 				ServerUI.log(nickname + " requested an album. (3)");
 				try{
 					String albumTitle = (String)fromClient.readObject();
@@ -138,6 +156,8 @@ public class Client{
 					ServerUI.addExceptionMessage(e.getMessage());
 				}
 				break;
+				
+			}
 				
 			case 4:
 				ServerUI.log(nickname + " requested a song. (4)");
@@ -150,6 +170,7 @@ public class Client{
 				}catch(IOException | ClassNotFoundException e){
 					ServerUI.addExceptionMessage(e.getMessage());
 				}
+				break;
 				
 			case 60:
 				connected = false;
@@ -172,7 +193,7 @@ public class Client{
 	private SecretKey getClientAESKey(){
 		try{
 			byte[] decryptedKey = decrypt(clientKey, getMessage());
-			return new SecretKeySpec(decryptedKey, "AES");
+			return new SecretKeySpec(decryptedKey, 0, decryptedKey.length, "AES");
 		}catch(NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e){
 			ServerUI.addExceptionMessage(e.getMessage());
 		}
@@ -208,21 +229,21 @@ public class Client{
 		
 	}
 	
-	private byte[] encryptAES(SecretKey secKey, Object message) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
+	private byte[] encryptAES(SecretKey secKey, IvParameterSpec iv, Object message) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException{
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
 		objectOutputStream.writeObject(message);
 		
-		Cipher aesCipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-		aesCipher.init(Cipher.ENCRYPT_MODE, secKey);
+		Cipher aesCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+		aesCipher.init(Cipher.ENCRYPT_MODE, secKey, iv);
 		
 		return aesCipher.doFinal(byteArrayOutputStream.toByteArray());
 		
 	}
 	
-	private byte[] decryptAES(SecretKey originalKey, byte[] encryptedData) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException{
-		Cipher aesCipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-		aesCipher.init(Cipher.DECRYPT_MODE, originalKey);
+	private byte[] decryptAES(SecretKey originalKey, IvParameterSpec iv, byte[] encryptedData) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException{
+		Cipher aesCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+		aesCipher.init(Cipher.DECRYPT_MODE, originalKey, iv);
 		
 		return aesCipher.doFinal(encryptedData);
 		
