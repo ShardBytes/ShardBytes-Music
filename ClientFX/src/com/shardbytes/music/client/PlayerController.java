@@ -14,8 +14,8 @@ public class PlayerController{
 	@FXML private JFXTextField searchTextField;
 	@FXML private JFXListView searchResultsList;
 	
-	@FXML private void playButtonClicked(){
-		
+	@FXML private void playButtonClicked() throws Exception{
+		System.out.println(Networking.getInstance().getAllAlbums());
 	}
 	
 	@FXML private void doSearch() throws Exception{
