@@ -58,18 +58,18 @@ public class Networking{
 		send(publicKey);
 		serverKey = getServerPublicKey();
 		
-		send(encrypt(privateKey, name));
-		send(encrypt(privateKey, password));
+		send(encrypt(serverKey, name));
+		send(encrypt(serverKey, password));
 		
-		return reconstructObject(decrypt(serverKey, getMessage()), Boolean.class);
+		return reconstructObject(decrypt(privateKey, getMessage()), Boolean.class);
 		
 	}
 	
 	ArrayList<Album> getAllAlbums() throws NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, IOException, ClassNotFoundException, InvalidAlgorithmParameterException{
 		if(socket != null){
-			send(encrypt(privateKey, 2));
+			send(encrypt(serverKey, 2));
 			
-			byte[] ivBytes = reconstructObject(decrypt(serverKey, getMessage()), byte[].class);
+			byte[] ivBytes = reconstructObject(decrypt(privateKey, getMessage()), byte[].class);
 			IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
 			SecretKey secKey = getServerAESKey();
 			return reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), ArrayList.class);
@@ -81,9 +81,9 @@ public class Networking{
 	
 	ArrayList<Song> getAllSongs() throws NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, IOException, ClassNotFoundException, InvalidAlgorithmParameterException{
 		if(socket != null){
-			send(encrypt(privateKey, 1));
+			send(encrypt(serverKey, 1));
 			
-			byte[] ivBytes = reconstructObject(decrypt(serverKey, getMessage()), byte[].class);
+			byte[] ivBytes = reconstructObject(decrypt(privateKey, getMessage()), byte[].class);
 			IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
 			SecretKey secKey = getServerAESKey();
 			return reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), ArrayList.class);
@@ -124,7 +124,7 @@ public class Networking{
 	
 	private SecretKey getServerAESKey(){
 		try{
-			byte[] decryptedKey =  reconstructObject(decrypt(serverKey, getMessage()), byte[].class);
+			byte[] decryptedKey =  reconstructObject(decrypt(privateKey, getMessage()), byte[].class);
 			return new SecretKeySpec(decryptedKey, 0, decryptedKey.length, "AES");
 		}catch(IOException | ClassNotFoundException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e){
 			System.err.println(e.getMessage());
@@ -141,21 +141,21 @@ public class Networking{
 		
 	}
 	
-	private byte[] encrypt(PrivateKey privateKey, Object message) throws NoSuchAlgorithmException, IOException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException{
+	private byte[] encrypt(PublicKey otherSidePublicKey, Object message) throws NoSuchAlgorithmException, IOException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException{
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
 		objectOutputStream.writeObject(message);
 		
 		Cipher cipher = Cipher.getInstance("RSA");
-		cipher.init(Cipher.ENCRYPT_MODE, privateKey);
+		cipher.init(Cipher.ENCRYPT_MODE, otherSidePublicKey);
 		
 		return cipher.doFinal(byteArrayOutputStream.toByteArray());
 		
 	}
 	
-	private byte[] decrypt(PublicKey publicKey, byte[] encryptedData) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
+	private byte[] decrypt(PrivateKey privateKey, byte[] encryptedData) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
 		Cipher cipher = Cipher.getInstance("RSA");
-		cipher.init(Cipher.DECRYPT_MODE, publicKey);
+		cipher.init(Cipher.DECRYPT_MODE, privateKey);
 		
 		return cipher.doFinal(encryptedData);
 		
