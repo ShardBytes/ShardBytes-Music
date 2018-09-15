@@ -32,7 +32,8 @@ public class CellData{
 		
 	}
 	
-	public HBox getBox(){
+	public HBox getBox(double xSize){
+		hBox.setScaleX(xSize);
 		return hBox;
 	}
 	

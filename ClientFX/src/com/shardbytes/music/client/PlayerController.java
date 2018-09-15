@@ -8,9 +8,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.util.Callback;
 
 public class PlayerController{
 	
@@ -26,13 +23,17 @@ public class PlayerController{
 	
 	@FXML private void doSearch() throws Exception{
 		ObservableList<Song> data = FXCollections.observableArrayList();
-		
 		for(Song song : Networking.getInstance().getAllSongs()){
 			data.add(song);
 		}
 		
 		searchResultsList.setCellFactory(listView -> new ListViewCell());
 		searchResultsList.setItems(data);
+		
+	}
+	
+	public JFXListView getList(){
+		return searchResultsList;
 	}
 	
 }

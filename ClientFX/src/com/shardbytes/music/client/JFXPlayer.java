@@ -16,21 +16,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class JFXPlayer extends Application{
 	
-	public static void main(String[] args){
+	public static void main(String[] args) throws Exception{
 		launch(args);
+		Networking.getInstance().disconnect();
 		System.exit(0);
 	}
 	
 	private Parent root;
 	private Stage stage;
 	private Scene scene;
+	private static PlayerController controller;
 	
 	@Override
 	public void start(Stage primaryStage) throws IOException{
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("PlayerDesign.fxml"));
 		root = loader.load();
 		
-		PlayerController controller = loader.getController();
+		controller = loader.getController();
 		scene = new Scene(root);
 		primaryStage.setScene(scene);
 		primaryStage.sizeToScene();
@@ -88,6 +90,10 @@ public class JFXPlayer extends Application{
 			createLoginDialog(primaryStage);
 		}
 		
+	}
+	
+	static PlayerController getController(){
+		return controller;
 	}
 	
 }

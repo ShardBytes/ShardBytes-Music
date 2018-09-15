@@ -11,7 +11,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<JFXTabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #303030;" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.shardbytes.music.client.PlayerController">
+<JFXTabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #303030;" stylesheets="@PlayerDesignStyle.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.shardbytes.music.client.PlayerController">
    <tabs>
       <Tab text="Player">
         <content>
@@ -55,7 +55,7 @@
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
                   <JFXTextField fx:id="searchTextField" focusColor="#3e50b4" labelFloat="true" layoutX="225.0" layoutY="19.0" onAction="#doSearch" promptText="Search" style="-fx-text-fill: #FFFFFF;" unFocusColor="#3e52b4" />
-                  <JFXListView fx:id="searchResultsList" layoutX="38.0" layoutY="59.0" prefHeight="290.0" prefWidth="524.0" style="-fx-background-color: #424242;" />
+                  <JFXListView fx:id="searchResultsList" layoutX="38.0" layoutY="59.0" prefHeight="290.0" prefWidth="524.0" style="-fx-background-color: #303030;" styleClass="searchResultsList" />
                </children></AnchorPane>
         </content>
       </Tab>

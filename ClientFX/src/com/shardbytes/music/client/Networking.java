@@ -93,6 +93,28 @@ public class Networking{
 		
 	}
 	
+	void disconnect() throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
+		if(socket != null){
+			send(encrypt(serverKey, 60));
+			
+			toServer.close();
+			fromServer.close();
+			socket.close();
+			
+		}
+		
+		socket = null;
+		fromServer = null;
+		toServer = null;
+		
+		keyPair = null;
+		publicKey = null;
+		privateKey = null;
+		
+		serverKey = null;
+		
+	}
+	
 	private void send(Object message){
 		try{
 			toServer.writeObject(message);
