@@ -62,13 +62,13 @@ public class Client{
 			clientKey = getClientPublicKey();
 			send(publicKey);
 			
-			String name = reconstructObject(decrypt(clientKey, getMessage()), String.class);
-			char[] password = reconstructObject(decrypt(clientKey, getMessage()), String.class).toCharArray();
+			String name = reconstructObject(decrypt(privateKey, getMessage()), String.class);
+			char[] password = reconstructObject(decrypt(privateKey, getMessage()), String.class).toCharArray();
 			
 			if(PasswordDB.getInstance().auth(name, password)){
-				send(encrypt(privateKey, true));
+				send(encrypt(clientKey, true));
 			}else{
-				send(encrypt(privateKey, false));
+				send(encrypt(clientKey, false));
 				connected = false;
 			}
 			
@@ -86,7 +86,7 @@ public class Client{
 				ServerUI.log(nickname + " connected.");
 				
 				while(connected){
-					byte command = reconstructObject(decrypt(clientKey, getMessage()), Integer.class).byteValue();
+					byte command = reconstructObject(decrypt(privateKey, getMessage()), Integer.class).byteValue();
 					processCommand(command);
 					
 				}
@@ -120,8 +120,8 @@ public class Client{
 				secureRandom.nextBytes(ivBytes);
 				IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
 				
-				send(encrypt(privateKey, ivBytes));
-				send(encrypt(privateKey, secKey.getEncoded()));
+				send(encrypt(clientKey, ivBytes));
+				send(encrypt(clientKey, secKey.getEncoded()));
 				send(encryptAES(secKey, ivParameterSpec, SongDB.getInstance().getSongList()));
 				break;
 				
@@ -139,8 +139,8 @@ public class Client{
 				secureRandom.nextBytes(ivBytes);
 				IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
 				
-				send(encrypt(privateKey, ivBytes));
-				send(encrypt(privateKey, secKey.getEncoded()));
+				send(encrypt(clientKey, ivBytes));
+				send(encrypt(clientKey, secKey.getEncoded()));
 				send(encryptAES(secKey, ivParameterSpec, SongDB.getInstance().getAlbumList()));
 				break;
 				
@@ -192,7 +192,7 @@ public class Client{
 	
 	private SecretKey getClientAESKey(){
 		try{
-			byte[] decryptedKey = decrypt(clientKey, getMessage());
+			byte[] decryptedKey = decrypt(privateKey, getMessage());
 			return new SecretKeySpec(decryptedKey, 0, decryptedKey.length, "AES");
 		}catch(NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e){
 			ServerUI.addExceptionMessage(e.getMessage());
@@ -209,21 +209,21 @@ public class Client{
 		
 	}
 	
-	private byte[] encrypt(PrivateKey privateKey, Object message) throws NoSuchAlgorithmException, IOException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException{
+	private byte[] encrypt(PublicKey otherSidePublicKey, Object message) throws NoSuchAlgorithmException, IOException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException{
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
 		objectOutputStream.writeObject(message);
 		
 		Cipher cipher = Cipher.getInstance("RSA");
-		cipher.init(Cipher.ENCRYPT_MODE, privateKey);
+		cipher.init(Cipher.ENCRYPT_MODE, otherSidePublicKey);
 		
 		return cipher.doFinal(byteArrayOutputStream.toByteArray());
 		
 	}
 	
-	private byte[] decrypt(PublicKey publicKey, byte[] encryptedData) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
+	private byte[] decrypt(PrivateKey privateKey, byte[] encryptedData) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
 		Cipher cipher = Cipher.getInstance("RSA");
-		cipher.init(Cipher.DECRYPT_MODE, publicKey);
+		cipher.init(Cipher.DECRYPT_MODE, privateKey);
 		
 		return cipher.doFinal(encryptedData);
 		
