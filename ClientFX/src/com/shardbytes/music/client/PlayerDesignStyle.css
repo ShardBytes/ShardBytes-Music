@@ -24,3 +24,28 @@
     -fx-background-color: rgb(128, 128, 128);
     
 }
+
+.mainFxmlClass {
+    
+    #pane {
+    
+        -fx-background-size: 600 480;
+        -fx-background-radius: 10 10 10 10;
+        -fx-border-radius: 10 10 10 10;
+        -fx-background-color: #303030;
+        
+    }
+    
+}
+
+.mainFxmlClass .tab-header-area .tab-header-background {
+    
+    -fx-background-color:#212121 !important;
+    
+}
+
+.mainFxmlClass .tab-header-area .tab-selected-line {
+    
+    -fx-background-color: #FF3F80 !important;
+    
+}
