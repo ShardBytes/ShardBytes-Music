@@ -1,7 +1,6 @@
 package com.shardbytes.music.client;
 
 import com.shardbytes.music.common.Song;
-import javafx.application.Platform;
 import javafx.scene.control.ListCell;
 
 public class ListViewCell extends ListCell<Song>{
@@ -15,8 +14,7 @@ public class ListViewCell extends ListCell<Song>{
 			data.setInfo(item);
 			
 			//setStyle("-fx-padding: 5px;");
-			setGraphic(data.getBox(JFXPlayer.getController().getList().getLayoutX() - 2));
-			//TODO: AHHHHH
+			setGraphic(data.getBox());
 			
 		}
 		

@@ -92,8 +92,4 @@ public class JFXPlayer extends Application{
 		
 	}
 	
-	static PlayerController getController(){
-		return controller;
-	}
-	
 }

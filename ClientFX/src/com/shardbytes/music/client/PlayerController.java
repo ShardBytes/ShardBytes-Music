@@ -32,8 +32,4 @@ public class PlayerController{
 		
 	}
 	
-	public JFXListView getList(){
-		return searchResultsList;
-	}
-	
 }
