@@ -220,8 +220,6 @@ public class SongDB{
 			
 		}
 		
-		System.out.println(new ArrayList<>(resultSongs.subList(0, resultSongs.size() > maxResults ? maxResults : resultSongs.size())));
-		
 		return new ArrayList<>(resultSongs.subList(0, resultSongs.size() > maxResults ? maxResults : resultSongs.size()));
 		
 	}
