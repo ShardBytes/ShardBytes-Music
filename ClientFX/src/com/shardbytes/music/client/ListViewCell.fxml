@@ -6,14 +6,13 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 
-
-<HBox fx:id="hBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="80.0" style="-fx-background-color: #424242;" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<HBox fx:id="hBox" maxHeight="80.0" maxWidth="1.7976931348623157E308" prefHeight="80.0" prefWidth="206.0" styleClass="mainFxmlClass" stylesheets="@ListViewCellStyle.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <AnchorPane>
+      <AnchorPane maxHeight="80.0" maxWidth="1.7976931348623157E308" prefHeight="80.0" prefWidth="206.0">
          <children>
             <Label fx:id="songTitleLabel" layoutX="125.0" layoutY="18.0" text="Song title" textFill="WHITE" />
             <Label fx:id="authorLabel" layoutX="125.0" layoutY="38.0" text="Artist" textFill="#ffffffb3" />
-            <ImageView fitHeight="75.0" fitWidth="75.0" layoutX="23.0" layoutY="2.0" pickOnBounds="true">
+            <ImageView fx:id="albumArtImage" fitHeight="75.0" fitWidth="75.0" layoutX="23.0" layoutY="2.0" pickOnBounds="true">
                <image>
                   <Image url="@resources/empty.png" />
                </image>

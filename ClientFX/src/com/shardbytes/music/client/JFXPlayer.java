@@ -7,6 +7,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.GaussianBlur;
+import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -23,7 +24,7 @@ public class JFXPlayer extends Application{
 	}
 	
 	private Parent root;
-	private Stage stage;
+	private static Stage stage;
 	private Scene scene;
 	private static PlayerController controller;
 	
@@ -34,11 +35,17 @@ public class JFXPlayer extends Application{
 		
 		controller = loader.getController();
 		scene = new Scene(root);
+		
 		primaryStage.setScene(scene);
 		primaryStage.sizeToScene();
 		primaryStage.setTitle("ShardBytes Music");
 		primaryStage.setResizable(false);
+		
+		primaryStage.initStyle(StageStyle.TRANSPARENT);
+		scene.setFill(Color.TRANSPARENT);
+		
 		primaryStage.show();
+		stage = primaryStage;
 		
 		createLoginDialog(primaryStage);
 		
@@ -81,6 +88,8 @@ public class JFXPlayer extends Application{
 		
 		dialogController.registerReference(loginDialog, root);
 		
+		dialogScene.setFill(Color.TRANSPARENT);
+		
 		AtomicBoolean successfulLogin = new AtomicBoolean(false);
 		loginDialog.setOnHiding((event) -> successfulLogin.set(dialogController.getLoginState()));
 		
@@ -92,8 +101,8 @@ public class JFXPlayer extends Application{
 		
 	}
 	
-	static PlayerController getController(){
-		return controller;
+	public static Stage getStage(){
+		return stage;
 	}
 	
 }

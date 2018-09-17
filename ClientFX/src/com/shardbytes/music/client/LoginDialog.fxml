@@ -6,8 +6,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane fx:id="anchorPane" prefHeight="180.0" prefWidth="300.0" style="-fx-background-color: #303030;" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.shardbytes.music.client.LoginDialogController">
+<AnchorPane fx:id="anchorPane" prefHeight="180.0" prefWidth="300.0" style="-fx-background-color: #303030;" styleClass="mainFxmlClass" stylesheets="@LoginDialogStyle.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.shardbytes.music.client.LoginDialogController">
    <children>
       <Label layoutX="33.0" layoutY="40.0" text="Username:" textFill="WHITE" />
       <Label layoutX="35.0" layoutY="73.0" text="Password:" textFill="WHITE" />
