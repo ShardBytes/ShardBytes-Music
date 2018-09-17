@@ -24,7 +24,7 @@ public class JFXPlayer extends Application{
 	}
 	
 	private Parent root;
-	private Stage stage;
+	private static Stage stage;
 	private Scene scene;
 	private static PlayerController controller;
 	
@@ -40,10 +40,12 @@ public class JFXPlayer extends Application{
 		primaryStage.sizeToScene();
 		primaryStage.setTitle("ShardBytes Music");
 		primaryStage.setResizable(false);
+		
 		primaryStage.initStyle(StageStyle.TRANSPARENT);
 		scene.setFill(Color.TRANSPARENT);
 		
 		primaryStage.show();
+		stage = primaryStage;
 		
 		createLoginDialog(primaryStage);
 		
@@ -97,6 +99,10 @@ public class JFXPlayer extends Application{
 			createLoginDialog(primaryStage);
 		}
 		
+	}
+	
+	public static Stage getStage(){
+		return stage;
 	}
 	
 }

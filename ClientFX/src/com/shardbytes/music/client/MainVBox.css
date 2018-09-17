@@ -1,0 +1,8 @@
+.mainWindowVBoxClass {
+    
+    -fx-background-size: 600 425;
+    -fx-background-color: transparent !important;
+    -fx-border-radius: 10 10 10 10;
+    -fx-background-radius: 10 10 10 10;
+    
+}

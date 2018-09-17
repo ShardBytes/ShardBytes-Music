@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 
-<HBox fx:id="hBox" maxHeight="80.0" maxWidth="1.7976931348623157E308" prefHeight="80.0" prefWidth="206.0" style="-fx-background-color: #424242;" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<HBox fx:id="hBox" maxHeight="80.0" maxWidth="1.7976931348623157E308" prefHeight="80.0" prefWidth="206.0" styleClass="mainFxmlClass" stylesheets="@ListViewCellStyle.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <AnchorPane maxHeight="80.0" maxWidth="1.7976931348623157E308" prefHeight="80.0" prefWidth="206.0">
          <children>

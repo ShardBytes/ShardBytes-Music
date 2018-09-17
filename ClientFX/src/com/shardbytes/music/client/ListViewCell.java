@@ -13,7 +13,7 @@ public class ListViewCell extends ListCell<Song>{
 			CellData data = new CellData();
 			data.setInfo(item);
 			
-			setStyle("-fx-background-color: #303030;");
+			setStyle("-fx-background-color: #303030");
 			setGraphic(data.getBox());
 			
 		}
