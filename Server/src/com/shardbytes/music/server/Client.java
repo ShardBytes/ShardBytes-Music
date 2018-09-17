@@ -1,5 +1,6 @@
 package com.shardbytes.music.server;
 
+import com.shardbytes.music.common.Song;
 import com.shardbytes.music.server.Database.PasswordDB;
 import com.shardbytes.music.server.Database.SongDB;
 import com.shardbytes.music.server.UI.ServerUI;
@@ -100,7 +101,7 @@ public class Client{
 		
 	}
 	
-	private void processCommand(byte command) throws NoSuchAlgorithmException, IOException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException{
+	private void processCommand(byte command) throws NoSuchAlgorithmException, IOException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, ClassNotFoundException{
 		switch(command){
 			case 0:{
 				ServerUI.log("0");
@@ -119,9 +120,9 @@ public class Client{
 				byte[] ivBytes = new byte[16];
 				secureRandom.nextBytes(ivBytes);
 				IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
-				
 				send(encrypt(clientKey, ivBytes));
 				send(encrypt(clientKey, secKey.getEncoded()));
+				
 				send(encryptAES(secKey, ivParameterSpec, SongDB.getInstance().getSongList()));
 				break;
 				
@@ -138,23 +139,31 @@ public class Client{
 				byte[] ivBytes = new byte[16];
 				secureRandom.nextBytes(ivBytes);
 				IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
-				
 				send(encrypt(clientKey, ivBytes));
 				send(encrypt(clientKey, secKey.getEncoded()));
+				
 				send(encryptAES(secKey, ivParameterSpec, SongDB.getInstance().getAlbumList()));
 				break;
 				
 			}
 				
 			case 3:{
-				ServerUI.log(nickname + " requested an album. (3)");
-				try{
-					String albumTitle = (String)fromClient.readObject();
-					String albumAuthor = (String)fromClient.readObject();
-					send(SongDB.getInstance().getAlbum(albumTitle, albumAuthor));
-				}catch(IOException | ClassNotFoundException e){
-					ServerUI.addExceptionMessage(e.getMessage());
-				}
+				ServerUI.log(nickname + " requested an album using non-precise method. (3)");
+				
+				KeyGenerator generator = KeyGenerator.getInstance("AES");
+				generator.init(128);
+				SecretKey secKey = generator.generateKey();
+				
+				SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
+				byte[] ivBytes = new byte[16];
+				secureRandom.nextBytes(ivBytes);
+				IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
+				send(encrypt(clientKey, ivBytes));
+				send(encrypt(clientKey, secKey.getEncoded()));
+				
+				String title = reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), String.class);
+				
+				send(encryptAES(secKey, ivParameterSpec, SongDB.getInstance().getAlbumNonPrecise(title)));
 				break;
 				
 			}
@@ -170,6 +179,25 @@ public class Client{
 				}catch(IOException | ClassNotFoundException e){
 					ServerUI.addExceptionMessage(e.getMessage());
 				}
+				break;
+				
+			case 5:
+				ServerUI.log(nickname + " searched for a song. (5)");
+				
+				KeyGenerator generator = KeyGenerator.getInstance("AES");
+				generator.init(128);
+				SecretKey secKey = generator.generateKey();
+				
+				SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
+				byte[] ivBytes = new byte[16];
+				secureRandom.nextBytes(ivBytes);
+				IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
+				send(encrypt(clientKey, ivBytes));
+				send(encrypt(clientKey, secKey.getEncoded()));
+				
+				String searchString = reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), String.class);
+				
+				send(encryptAES(secKey, ivParameterSpec, SongDB.getInstance().doSongSearch(searchString, 10)));
 				break;
 				
 			case 60:

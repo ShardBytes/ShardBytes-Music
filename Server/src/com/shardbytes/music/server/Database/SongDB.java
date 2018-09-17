@@ -15,6 +15,7 @@ import org.jaudiotagger.tag.TagException;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -178,6 +179,18 @@ public class SongDB{
 		
 	}
 	
+	public Album getAlbumNonPrecise(String albumTitle){
+		for(Album album : allDatabaseAlbums){
+			if(album.getTitle().equals(albumTitle)){
+				return album;
+				
+			}
+			
+		}
+		return null;
+		
+	}
+	
 	public Song getSong(String artist, String album, String title){
 		for(Song song : allDatabaseSongs){
 			if(song.getArtist().equals(artist) && song.getAlbum().equals(album) && song.getTitle().equals(title)){
@@ -187,6 +200,29 @@ public class SongDB{
 			
 		}
 		return null;
+		
+	}
+	
+	public ArrayList<Song> doSongSearch(String searchString, int maxResults){
+		ArrayList<Song> resultSongs = new ArrayList<>();
+		
+		if(searchString.length() >= 3){
+			final String search = searchString.toLowerCase();
+			
+			allDatabaseSongs.forEach(song -> {
+				if(song.getTitle().toLowerCase().contains(search)) resultSongs.add(song);
+				
+				else if(song.getArtist().toLowerCase().contains(search)) resultSongs.add(song);
+				
+				else if(song.getAlbum().toLowerCase().contains(search)) resultSongs.add(song);
+				
+			});
+			
+		}
+		
+		System.out.println(new ArrayList<>(resultSongs.subList(0, resultSongs.size() > maxResults ? maxResults : resultSongs.size())));
+		
+		return new ArrayList<>(resultSongs.subList(0, resultSongs.size() > maxResults ? maxResults : resultSongs.size()));
 		
 	}
 	
