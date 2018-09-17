@@ -12,7 +12,7 @@
          <children>
             <Label fx:id="songTitleLabel" layoutX="125.0" layoutY="18.0" text="Song title" textFill="WHITE" />
             <Label fx:id="authorLabel" layoutX="125.0" layoutY="38.0" text="Artist" textFill="#ffffffb3" />
-            <ImageView fitHeight="75.0" fitWidth="75.0" layoutX="23.0" layoutY="2.0" pickOnBounds="true">
+            <ImageView fx:id="albumArtImage" fitHeight="75.0" fitWidth="75.0" layoutX="23.0" layoutY="2.0" pickOnBounds="true">
                <image>
                   <Image url="@resources/empty.png" />
                </image>

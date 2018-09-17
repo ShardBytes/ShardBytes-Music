@@ -33,7 +33,8 @@ public class PlayerController implements Initializable{
 	
 	@FXML private void doSearch() throws Exception{
 		ObservableList<Song> data = FXCollections.observableArrayList();
-		for(Song song : Networking.getInstance().getAllSongs()){
+		for(Song song : Networking.getInstance().getSongSearch(searchTextField.getText())){
+			System.out.println(song);
 			data.add(song);
 		}
 		

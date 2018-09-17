@@ -16,6 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Array;
 import java.net.Socket;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -79,6 +80,23 @@ public class Networking{
 		
 	}
 	
+	Album getAlbumNonPrecise(String albumTitle) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidKeyException, ClassNotFoundException, InvalidAlgorithmParameterException{
+		if(socket != null){
+			send(encrypt(serverKey, 3));
+			
+			byte[] ivBytes = reconstructObject(decrypt(privateKey, getMessage()), byte[].class);
+			IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
+			SecretKey secKey = getServerAESKey();
+			
+			send(encryptAES(secKey, ivParameterSpec, albumTitle));
+			
+			return reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), Album.class);
+			
+		}
+		return null;
+		
+	}
+	
 	ArrayList<Song> getAllSongs() throws NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, IOException, ClassNotFoundException, InvalidAlgorithmParameterException{
 		if(socket != null){
 			send(encrypt(serverKey, 1));
@@ -86,6 +104,23 @@ public class Networking{
 			byte[] ivBytes = reconstructObject(decrypt(privateKey, getMessage()), byte[].class);
 			IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
 			SecretKey secKey = getServerAESKey();
+			return reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), ArrayList.class);
+			
+		}
+		return null;
+		
+	}
+	
+	ArrayList<Song> getSongSearch(String searchString) throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, IOException, ClassNotFoundException, InvalidAlgorithmParameterException{
+		if(socket != null){
+			send(encrypt(serverKey, 5));
+			
+			byte[] ivBytes = reconstructObject(decrypt(privateKey, getMessage()), byte[].class);
+			IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
+			SecretKey secKey = getServerAESKey();
+			
+			send(encryptAES(secKey, ivParameterSpec, searchString));
+			
 			return reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), ArrayList.class);
 			
 		}

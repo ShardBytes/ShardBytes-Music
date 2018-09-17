@@ -9,6 +9,12 @@ public class ListViewCell extends ListCell<Song>{
 	public void updateItem(Song item, boolean empty){
 		super.updateItem(item, empty);
 		
+		if(empty){
+			setStyle("-fx-background-color: #303030");
+			setGraphic(null);
+			return;
+		}
+		
 		if(item != null){
 			CellData data = new CellData();
 			data.setInfo(item);
