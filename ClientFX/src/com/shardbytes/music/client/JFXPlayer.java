@@ -106,4 +106,8 @@ public class JFXPlayer extends Application{
 		return stage;
 	}
 	
+	public static PlayerController getController(){
+		return controller;
+	}
+	
 }

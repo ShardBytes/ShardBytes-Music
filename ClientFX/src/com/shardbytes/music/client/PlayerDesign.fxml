@@ -14,7 +14,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
 <VBox styleClass="mainWindowVBoxClass" stylesheets="@MainVBox.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.shardbytes.music.client.PlayerController">
    <children>
       <AnchorPane fx:id="titleBarPane" prefHeight="22.0" prefWidth="600.0" styleClass="mainTitleBarClass" stylesheets="@TitleBar.css">
@@ -32,14 +31,14 @@
             <Label layoutX="476.0" layoutY="3.0" text="ShardBytes Music" />
          </children>
       </AnchorPane>
-      <JFXTabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #303030;" styleClass="mainFxmlClass" stylesheets="@PlayerDesignStyle.css">
+      <JFXTabPane fx:id="tabPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #303030;" styleClass="mainFxmlClass" stylesheets="@PlayerDesignStyle.css">
          <tabs>
             <Tab text="Player">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <Label fx:id="songLabel" alignment="CENTER" layoutX="214.0" layoutY="177.0" prefHeight="17.0" prefWidth="172.0" text="Current song" textAlignment="CENTER" textFill="WHITE" />
-                        <Label fx:id="albumLabel" alignment="CENTER" layoutX="214.0" layoutY="194.0" prefHeight="17.0" prefWidth="172.0" text="Author - album" textAlignment="CENTER" textFill="#ffffffb3" />
+                        <Label fx:id="songLabel" alignment="CENTER" layoutX="161.0" layoutY="176.0" prefHeight="17.0" prefWidth="280.0" text="Current song" textAlignment="CENTER" textFill="WHITE" />
+                        <Label fx:id="albumLabel" alignment="CENTER" layoutX="161.0" layoutY="193.0" prefHeight="17.0" prefWidth="280.0" text="Author - album" textAlignment="CENTER" textFill="#ffffffb3" />
                         <JFXButton fx:id="playButton" layoutX="250.0" layoutY="223.0" onAction="#playButtonClicked" prefHeight="27.0" prefWidth="100.0" style="-fx-background-color: #3E50B4;" text="Play/Pause" textFill="WHITE">
                            <graphic>
                               <FontAwesomeIconView fill="WHITE" glyphName="PLAY" />
@@ -77,8 +76,10 @@
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <JFXTextField fx:id="searchTextField" focusColor="#3e50b4" labelFloat="true" layoutX="225.0" layoutY="19.0" onAction="#doSearch" promptText="Search" style="-fx-text-fill: #FFFFFF;" unFocusColor="#3e52b4" />
-                        <JFXListView fx:id="searchResultsList" layoutX="38.0" layoutY="59.0" prefHeight="290.0" prefWidth="524.0" style="-fx-background-color: #303030;" styleClass="searchResultsList" />
+                        <JFXButton buttonType="RAISED" layoutX="256.0" layoutY="185.0" style="-fx-background-color: #3E50B4;" text="Add a song" textFill="WHITE" />
+                        <Label fx:id="searchResultsLabel" alignment="CENTER" layoutX="167.0" layoutY="157.0" prefHeight="17.0" prefWidth="266.0" text="Try searching or..." textFill="#ffffffb3" />
+                        <JFXTextField fx:id="searchTextField" focusColor="#3e50b4" labelFloat="true" layoutX="225.0" layoutY="19.0" onAction="#doSearch" promptText="Search" style="-fx-text-fill: #FFFFFF;" unFocusColor="#3e50b4" />
+                        <JFXListView fx:id="searchResultsList" layoutX="38.0" layoutY="59.0" prefHeight="290.0" prefWidth="524.0" style="-fx-background-color: #303030;" styleClass="searchResultsList" visible="false" />
                      </children>
                   </AnchorPane>
               </content>
