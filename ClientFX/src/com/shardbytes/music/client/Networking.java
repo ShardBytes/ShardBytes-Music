@@ -130,6 +130,25 @@ public class Networking{
 		
 	}
 	
+	byte[] getSongBytes(String artist, String album, String title) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidKeyException, ClassNotFoundException, InvalidAlgorithmParameterException{
+		if(socket != null){
+			send(encrypt(serverKey, 4));
+			
+			byte[] ivBytes = reconstructObject(decrypt(privateKey, getMessage()), byte[].class);
+			IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
+			SecretKey secKey = getServerAESKey();
+			
+			send(encryptAES(secKey, ivParameterSpec, artist));
+			send(encryptAES(secKey, ivParameterSpec, album));
+			send(encryptAES(secKey, ivParameterSpec, title));
+			
+			return reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), byte[].class);
+			
+		}
+		return null;
+		
+	}
+	
 	void disconnect() throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
 		if(socket != null){
 			send(encrypt(serverKey, 60));
