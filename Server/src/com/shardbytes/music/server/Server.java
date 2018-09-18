@@ -34,13 +34,14 @@ public class Server{
 	 */
 	private void start(){
 		createUI();
+		Configs.getInstance();
 		SongDB.getInstance();
 		PasswordDB.getInstance()/*.register("plajdo", "heslo".toCharArray())*/;
 		
 		Thread serverThread = new Thread(() -> {
 			try{
 				ServerSocket server = createSocketBySettings();
-				ServerUI.log(server.toString());
+				ServerUI.log("Running on " + server.getInetAddress().getHostName() + ":" + server.getLocalPort());
 				while(ui.getRenderStatus()){
 					Socket clientSocket = server.accept();
 					Client client = new Client(clientSocket);
@@ -73,39 +74,8 @@ public class Server{
 	}
 	
 	private ServerSocket createSocketBySettings() throws IOException{
-		Properties prop = new Properties();
-		
-		int port;
-		int backlog;
-		String ip;
-		
-		try(InputStream in = new FileInputStream("serverconfig.properties")){
-			prop.load(in);
-			
-			port = Integer.parseInt(prop.getProperty("port", "8192"));
-			backlog = Integer.parseInt(prop.getProperty("backlog", "10"));
-			ip = prop.getProperty("ipAddress", "localhost");
-			
-		}catch(IOException e){
-			ServerUI.addExceptionMessage(e.getMessage());
-			port = 8192;
-			backlog = 10;
-			ip = "localhost";
-			
-			try(OutputStream out = new FileOutputStream("serverconfig.properties")){
-				prop.setProperty("port", "8192");
-				prop.setProperty("backlog", "10");
-				prop.setProperty("ipAddress", "127.0.0.1");
-				
-				prop.store(out, null);
-				
-			}catch(IOException e1){
-				ServerUI.addExceptionMessage(e1.getMessage());
-			}
-			
-		}
-		
-		return new ServerSocket(port, backlog, InetAddress.getByName(ip));
+		Configs configs = Configs.getInstance();
+		return new ServerSocket(configs.getServerPort(), configs.getBacklog(), InetAddress.getByName(configs.getServerIP()));
 		
 	}
 	

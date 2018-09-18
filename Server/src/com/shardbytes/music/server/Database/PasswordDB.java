@@ -3,6 +3,7 @@ package com.shardbytes.music.server.Database;
 import com.amdelamar.jhash.Hash;
 import com.amdelamar.jhash.algorithms.Type;
 import com.amdelamar.jhash.exception.InvalidHashException;
+import com.shardbytes.music.server.Configs;
 import com.shardbytes.music.server.UI.ServerUI;
 
 import java.io.File;
@@ -63,7 +64,7 @@ public class PasswordDB{
 	}
 	
 	public void save(){
-		File dbFile = new File("D:" + File.separator + "ShardBytes Music.sbmd" + File.separator + "pdb.db");
+		File dbFile = new File(Configs.getInstance().getDatabaseLocation() + File.separator + "pdb.db");
 		try(FileOutputStream fileOutputStream = new FileOutputStream(dbFile); ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)){
 			if(!dbFile.exists()){
 				dbFile.createNewFile();
@@ -78,7 +79,7 @@ public class PasswordDB{
 	}
 	
 	public void load(){
-		File dbFile = new File("D:" + File.separator + "ShardBytes Music.sbmd" + File.separator + "pdb.db");
+		File dbFile = new File(Configs.getInstance().getDatabaseLocation() + File.separator + "pdb.db");
 		if(dbFile.exists()){
 			try(FileInputStream fileInputStream = new FileInputStream(dbFile); ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)){
 				users = (HashMap<String, String>)objectInputStream.readObject();

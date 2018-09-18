@@ -2,6 +2,7 @@ package com.shardbytes.music.server.Database;
 
 import com.shardbytes.music.common.Album;
 import com.shardbytes.music.common.Song;
+import com.shardbytes.music.server.Configs;
 import com.shardbytes.music.server.UI.ServerUI;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -26,7 +27,7 @@ public class SongDB{
 	private static SongDB ourInstance = new SongDB();
 	
 	//private File databaseFolder = new File("/Users/filipsasala/Desktop/ShardBytes Music.sbmd");				//Mac test version
-	private File databaseFolder = new File("D:" + File.separator + "ShardBytes Music.sbmd");			//ShardBytes music database
+	private File databaseFolder = new File(Configs.getInstance().getDatabaseLocation());
 	
 	private ArrayList<Song> allDatabaseSongs;	//TODO: Save & load these from file when there is no need to sync stuff
 	private ArrayList<Album> allDatabaseAlbums;

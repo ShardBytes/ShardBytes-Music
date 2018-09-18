@@ -48,7 +48,9 @@ public class Networking{
 	private PublicKey serverKey;
 	
 	boolean login(String name, String password) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, ClassNotFoundException{
-		socket = new Socket("192.168.100.166", 8192);
+		Configs configs = Configs.getInstance();
+		
+		socket = new Socket(configs.getServerIP(), configs.getServerPort());
 		toServer = new ObjectOutputStream(socket.getOutputStream());
 		fromServer = new ObjectInputStream(socket.getInputStream());
 		

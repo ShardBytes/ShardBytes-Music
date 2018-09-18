@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class JFXPlayer extends Application{
 	
 	public static void main(String[] args) throws Exception{
+		Configs.getInstance().load();
 		launch(args);
 		Networking.getInstance().disconnect();
 		System.exit(0);
