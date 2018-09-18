@@ -4,11 +4,17 @@ import com.shardbytes.music.server.Database.PasswordDB;
 import com.shardbytes.music.server.UI.ServerUI;
 import com.shardbytes.music.server.Database.SongDB;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Properties;
 
 public class Server{
 	
@@ -33,7 +39,8 @@ public class Server{
 		
 		Thread serverThread = new Thread(() -> {
 			try{
-				ServerSocket server = new ServerSocket(8192, 10, InetAddress.getByName("192.168.100.166"));
+				ServerSocket server = createSocketBySettings();
+				ServerUI.log(server.toString());
 				while(ui.getRenderStatus()){
 					Socket clientSocket = server.accept();
 					Client client = new Client(clientSocket);
@@ -63,6 +70,43 @@ public class Server{
 	
 	public static ArrayList<Client> getClients(){
 		return clients;
+	}
+	
+	private ServerSocket createSocketBySettings() throws IOException{
+		Properties prop = new Properties();
+		
+		int port;
+		int backlog;
+		String ip;
+		
+		try(InputStream in = new FileInputStream("serverconfig.properties")){
+			prop.load(in);
+			
+			port = Integer.parseInt(prop.getProperty("port", "8192"));
+			backlog = Integer.parseInt(prop.getProperty("backlog", "10"));
+			ip = prop.getProperty("ipAddress", "localhost");
+			
+		}catch(IOException e){
+			ServerUI.addExceptionMessage(e.getMessage());
+			port = 8192;
+			backlog = 10;
+			ip = "localhost";
+			
+			try(OutputStream out = new FileOutputStream("serverconfig.properties")){
+				prop.setProperty("port", "8192");
+				prop.setProperty("backlog", "10");
+				prop.setProperty("ipAddress", "127.0.0.1");
+				
+				prop.store(out, null);
+				
+			}catch(IOException e1){
+				ServerUI.addExceptionMessage(e1.getMessage());
+			}
+			
+		}
+		
+		return new ServerSocket(port, backlog, InetAddress.getByName(ip));
+		
 	}
 	
 }
