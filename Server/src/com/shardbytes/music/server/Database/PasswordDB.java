@@ -16,26 +16,19 @@ import java.util.HashMap;
 
 public class PasswordDB{
 	
-	private static boolean loaded = false;
 	private static PasswordDB ourInstance = new PasswordDB();
-	private PasswordDB(){}
+	private PasswordDB(){
+		load();
+	}
+	public static PasswordDB getInstance(){
+		return ourInstance;
+	}
 	
 	private HashMap<String, String> users = new HashMap<>();
 	
-	public static PasswordDB getInstance(){
-		if(loaded){
-			return ourInstance;
-		}else{
-			ourInstance.load();
-			loaded = true;
-			return ourInstance;
-		}
-		
-	}
-	
 	public boolean auth(String nickname, char[] password) throws InvalidHashException{
 		if(users.containsKey(nickname)){
-			return Hash.password(password).algorithm(Type.SCRYPT).saltLength(128).factor(1048576).verify(users.get(nickname));
+			return Hash.password(password).algorithm(Type.SCRYPT).saltLength(128).factor(0).verify(users.get(nickname));
 			
 		}
 		return false;
@@ -43,7 +36,7 @@ public class PasswordDB{
 	}
 	
 	public boolean register(String nickname, char[] password){
-		String hash = Hash.password(password).algorithm(Type.SCRYPT).saltLength(128).factor(1048576).create();
+		String hash = Hash.password(password).algorithm(Type.SCRYPT).saltLength(128).factor(0).create();
 		if(!users.containsKey(nickname)){
 			users.put(nickname, hash);
 			return true;

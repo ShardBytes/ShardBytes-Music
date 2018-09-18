@@ -37,7 +37,7 @@ public class SongDB{
 	}
 	
 	private SongDB(){
-		ServerUI.log(databaseFolder.toString());
+		ServerUI.log("Database located in: " + databaseFolder.getAbsolutePath());
 		recreate();
 		
 	}
@@ -207,21 +207,18 @@ public class SongDB{
 	public ArrayList<Song> doSongSearch(String searchString, int maxResults){
 		ArrayList<Song> resultSongs = new ArrayList<>();
 		
-		if(searchString.length() >= 3){
-			final String search = searchString.toLowerCase();
-			
-			allDatabaseSongs.forEach(song -> {
-				if(song.getTitle().toLowerCase().contains(search)) resultSongs.add(song);
-				
-				else if(song.getArtist().toLowerCase().contains(search)) resultSongs.add(song);
-				
-				else if(song.getAlbum().toLowerCase().contains(search)) resultSongs.add(song);
-				
-			});
-			
-		}
+		final String search = searchString.toLowerCase();
 		
-		return new ArrayList<>(resultSongs.subList(0, resultSongs.size() > maxResults ? maxResults : resultSongs.size()));
+		allDatabaseSongs.forEach(song -> {
+			if(song.getTitle().toLowerCase().contains(search) && resultSongs.size() < maxResults) resultSongs.add(song);
+			
+			else if(song.getArtist().toLowerCase().contains(search) && resultSongs.size() < maxResults) resultSongs.add(song);
+			
+			else if(song.getAlbum().toLowerCase().contains(search) && resultSongs.size() < maxResults) resultSongs.add(song);
+			
+		});
+		
+		return resultSongs;
 		
 	}
 	

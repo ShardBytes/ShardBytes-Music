@@ -105,6 +105,7 @@ public class Client{
 		switch(command){
 			case 0:{
 				ServerUI.log("0");
+				
 				break;
 				
 			}
@@ -124,10 +125,11 @@ public class Client{
 				send(encrypt(clientKey, secKey.getEncoded()));
 				
 				send(encryptAES(secKey, ivParameterSpec, SongDB.getInstance().getSongList()));
+				
 				break;
 				
 			}
-				
+			
 			case 2:{
 				ServerUI.log(nickname + " requested a album list. (2)");
 				
@@ -143,10 +145,11 @@ public class Client{
 				send(encrypt(clientKey, secKey.getEncoded()));
 				
 				send(encryptAES(secKey, ivParameterSpec, SongDB.getInstance().getAlbumList()));
+				
 				break;
 				
 			}
-				
+			
 			case 3:{
 				ServerUI.log(nickname + " requested an album using non-precise method. (3)");
 				
@@ -164,24 +167,37 @@ public class Client{
 				String title = reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), String.class);
 				
 				send(encryptAES(secKey, ivParameterSpec, SongDB.getInstance().getAlbumNonPrecise(title)));
+				
 				break;
 				
 			}
-				
-			case 4:
+			
+			case 4:{
 				ServerUI.log(nickname + " requested a song. (4)");
-				try{
-					String author = (String)fromClient.readObject();
-					String album = (String)fromClient.readObject();
-					String title = (String)fromClient.readObject();
-					send(Files.readAllBytes(SongDB.getInstance().getSong(author, album, title).getFile().toPath()));
-					
-				}catch(IOException | ClassNotFoundException e){
-					ServerUI.addExceptionMessage(e.getMessage());
-				}
+				
+				KeyGenerator generator = KeyGenerator.getInstance("AES");
+				generator.init(128);
+				SecretKey secKey = generator.generateKey();
+				
+				SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
+				byte[] ivBytes = new byte[16];
+				secureRandom.nextBytes(ivBytes);
+				IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
+				send(encrypt(clientKey, ivBytes));
+				send(encrypt(clientKey, secKey.getEncoded()));
+				
+				String artist = reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), String.class);
+				String album = reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), String.class);
+				String title = reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), String.class);
+				
+				byte[] songBytes = Files.readAllBytes(SongDB.getInstance().getSong(artist, album, title).getFile().toPath());
+				send(encryptAES(secKey, ivParameterSpec, songBytes));
+				
 				break;
 				
-			case 5:
+			}
+			
+			case 5:{
 				ServerUI.log(nickname + " searched for a song. (5)");
 				
 				KeyGenerator generator = KeyGenerator.getInstance("AES");
@@ -198,12 +214,19 @@ public class Client{
 				String searchString = reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), String.class);
 				
 				send(encryptAES(secKey, ivParameterSpec, SongDB.getInstance().doSongSearch(searchString, 10)));
+				
 				break;
 				
-			case 60:
+			}
+			
+			case 60:{
 				connected = false;
 				ServerUI.log(nickname + " disconnected. (60)");
+				
 				break;
+				
+			}
+			
 		}
 		
 	}

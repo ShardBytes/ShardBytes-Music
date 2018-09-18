@@ -36,12 +36,12 @@ public class Server{
 		createUI();
 		Configs.getInstance();
 		SongDB.getInstance();
-		PasswordDB.getInstance()/*.register("plajdo", "heslo".toCharArray())*/;
+		PasswordDB.getInstance().register("plajdo", "heslo".toCharArray());
 		
 		Thread serverThread = new Thread(() -> {
 			try{
 				ServerSocket server = createSocketBySettings();
-				ServerUI.log("Running on " + server.getInetAddress().getHostName() + ":" + server.getLocalPort());
+				ServerUI.log("Listening on " + server.getInetAddress().getHostName() + ":" + server.getLocalPort());
 				while(ui.getRenderStatus()){
 					Socket clientSocket = server.accept();
 					Client client = new Client(clientSocket);

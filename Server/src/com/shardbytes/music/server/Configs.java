@@ -8,12 +8,10 @@ import java.util.Properties;
 public class Configs{
 	
 	private static Configs ourInstance = new Configs();
-	private Configs(){}
-	private static boolean loaded = false;
+	private Configs(){
+		load();
+	}
 	public static Configs getInstance(){
-		if(!loaded){
-			ourInstance.load();
-		}
 		return ourInstance;
 		
 	}
@@ -39,12 +37,13 @@ public class Configs{
 			serverIP = "127.0.0.1";
 			serverPort = 8192;
 			backlog = 10;
+			databaseLocation = "ShardBytes Music.sbmd";
 			
-			try(FileOutputStream out = new FileOutputStream("config.properties")){
+			try(FileOutputStream out = new FileOutputStream("serverconfig.properties")){
 				prop.setProperty("serverIp", "127.0.0.1");
 				prop.setProperty("serverPort", "8192");
 				prop.setProperty("backlog", String.valueOf(10));
-				prop.setProperty("dbLocation", "");
+				prop.setProperty("dbLocation", "ShardBytes Music.sbmd");
 				
 				prop.store(out, null);
 				
