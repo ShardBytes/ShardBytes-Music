@@ -36,8 +36,8 @@ public class PasswordDB{
 	}
 	
 	public boolean register(String nickname, char[] password){
-		String hash = Hash.password(password).algorithm(Type.SCRYPT).saltLength(128).factor(0).create();
 		if(!users.containsKey(nickname)){
+			String hash = Hash.password(password).algorithm(Type.SCRYPT).saltLength(128).factor(0).create();
 			users.put(nickname, hash);
 			return true;
 		}else{

@@ -1,20 +1,17 @@
 package com.shardbytes.music.server;
 
-import com.shardbytes.music.common.Song;
 import com.shardbytes.music.server.Database.PasswordDB;
 import com.shardbytes.music.server.Database.SongDB;
-import com.shardbytes.music.server.UI.ServerUI;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.CipherOutputStream;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import javax.net.ssl.SSLServerSocket;
-import javax.net.ssl.SSLSocketFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -30,10 +27,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+
+import static com.shardbytes.music.server.UI.ServerUI.log;
+import static com.shardbytes.music.server.UI.ServerUI.addExceptionMessage;
 
 public class Client{
 	
@@ -76,7 +72,7 @@ public class Client{
 			
 			
 		}catch(Exception e){
-			ServerUI.addExceptionMessage(e.getMessage());
+			addExceptionMessage(e.getMessage());
 		}
 		
 	}
@@ -84,7 +80,7 @@ public class Client{
 	Client process(){
 		if(connected){
 			try{
-				ServerUI.log(nickname + " connected.");
+				log(nickname + " connected.");
 				
 				while(connected){
 					byte command = reconstructObject(decrypt(privateKey, getMessage()), Integer.class).byteValue();
@@ -93,7 +89,7 @@ public class Client{
 				}
 				
 			}catch(IOException | ClassNotFoundException | NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException e){
-				ServerUI.addExceptionMessage(e.getMessage());
+				addExceptionMessage(e.getMessage());
 			}
 			
 		}
@@ -104,14 +100,14 @@ public class Client{
 	private void processCommand(byte command) throws NoSuchAlgorithmException, IOException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, ClassNotFoundException{
 		switch(command){
 			case 0:{
-				ServerUI.log("0");
+				log("0");
 				
 				break;
 				
 			}
 			
 			case 1:{
-				ServerUI.log(nickname + " requested a song list. (1)");
+				log(nickname + " requested a song list. (1)");
 				
 				KeyGenerator generator = KeyGenerator.getInstance("AES");
 				generator.init(128);
@@ -131,7 +127,7 @@ public class Client{
 			}
 			
 			case 2:{
-				ServerUI.log(nickname + " requested a album list. (2)");
+				log(nickname + " requested a album list. (2)");
 				
 				KeyGenerator generator = KeyGenerator.getInstance("AES");
 				generator.init(128);
@@ -151,7 +147,7 @@ public class Client{
 			}
 			
 			case 3:{
-				ServerUI.log(nickname + " requested an album using non-precise method. (3)");
+				log(nickname + " requested an album using non-precise method. (3)");
 				
 				KeyGenerator generator = KeyGenerator.getInstance("AES");
 				generator.init(128);
@@ -173,7 +169,7 @@ public class Client{
 			}
 			
 			case 4:{
-				ServerUI.log(nickname + " requested a song. (4)");
+				log(nickname + " requested a song. (4)");
 				
 				KeyGenerator generator = KeyGenerator.getInstance("AES");
 				generator.init(128);
@@ -198,7 +194,7 @@ public class Client{
 			}
 			
 			case 5:{
-				ServerUI.log(nickname + " searched for a song. (5)");
+				log(nickname + " searched for a song. (5)");
 				
 				KeyGenerator generator = KeyGenerator.getInstance("AES");
 				generator.init(128);
@@ -219,9 +215,45 @@ public class Client{
 				
 			}
 			
+			case 6:{
+				log(nickname + " requested a song stream. (6)");
+				
+				KeyGenerator generator = KeyGenerator.getInstance("AES");
+				generator.init(128);
+				SecretKey secKey = generator.generateKey();
+				
+				SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
+				byte[] ivBytes = new byte[16];
+				secureRandom.nextBytes(ivBytes);
+				IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
+				send(encrypt(clientKey, ivBytes));
+				send(encrypt(clientKey, secKey.getEncoded()));
+				
+				String artist = reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), String.class);
+				String album = reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), String.class);
+				String title = reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), String.class);
+				
+				byte[] songBytes = Files.readAllBytes(SongDB.getInstance().getSong(artist, album, title).getFile().toPath());
+				
+				Cipher aesCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+				aesCipher.init(Cipher.ENCRYPT_MODE, secKey, ivParameterSpec);
+				
+				try{
+					CipherOutputStream stream = new CipherOutputStream(socket.getOutputStream(), aesCipher);
+					stream.write(songBytes);
+					stream.flush();
+				}catch(Exception e){
+					log("Audio stream to " + nickname + " closed.");
+					log(socket.toString());
+				}
+				
+				break;
+				
+			}
+			
 			case 60:{
 				connected = false;
-				ServerUI.log(nickname + " disconnected. (60)");
+				log(nickname + " disconnected. (60)");
 				
 				break;
 				
@@ -235,7 +267,7 @@ public class Client{
 		try{
 			return (PublicKey)fromClient.readObject();
 		}catch(IOException | ClassNotFoundException e){
-			ServerUI.addExceptionMessage(e.getMessage());
+			addExceptionMessage(e.getMessage());
 		}
 		return null;
 		
@@ -246,7 +278,7 @@ public class Client{
 			byte[] decryptedKey = decrypt(privateKey, getMessage());
 			return new SecretKeySpec(decryptedKey, 0, decryptedKey.length, "AES");
 		}catch(NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e){
-			ServerUI.addExceptionMessage(e.getMessage());
+			addExceptionMessage(e.getMessage());
 		}
 		return null;
 		
@@ -312,7 +344,7 @@ public class Client{
 		try{
 			toClient.writeObject(o);
 		}catch(IOException e){
-			ServerUI.addExceptionMessage(e.getMessage());
+			addExceptionMessage(e.getMessage());
 		}
 		
 	}
@@ -321,7 +353,7 @@ public class Client{
 		try{
 			return (byte[])fromClient.readObject();
 		}catch(IOException | ClassNotFoundException e){
-			ServerUI.addExceptionMessage(e.getMessage());
+			addExceptionMessage(e.getMessage());
 		}
 		return null;
 		

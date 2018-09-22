@@ -12,6 +12,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javazoom.jl.decoder.JavaLayerException;
@@ -25,6 +26,7 @@ public class PlayerController implements Initializable{
 	@FXML private JFXButton playButton;
 	@FXML private Label songLabel;
 	@FXML private Label albumLabel;
+	@FXML private ImageView albumArt;
 	
 	@FXML private JFXTextField searchTextField;
 	@FXML private JFXListView searchResultsList;
@@ -33,13 +35,9 @@ public class PlayerController implements Initializable{
 	@FXML private AnchorPane titleBarPane;
 	@FXML private JFXTabPane tabPane;
 	
-	@FXML private void playButtonClicked() throws Exception{
-		new Thread(() -> {
-			try{
-				AudioPlayer.getInstance().pause();
-			}catch(JavaLayerException e){
-				System.err.println(e.getMessage());
-			}
+	@FXML private void playButtonClicked(){
+		new Thread(() -> { 
+			AudioPlayer.getInstance().pause();
 			
 		}).start();
 		
@@ -122,13 +120,12 @@ public class PlayerController implements Initializable{
 						String album = selected.getAlbum();
 						String title = selected.getTitle();
 						
-						byte[] songBytes = Networking.getInstance().getSongBytes(artist, album, title);
-						
 						AudioPlayer player = AudioPlayer.getInstance();
-						player.preloadAsBytes(new ByteArrayInputStream(songBytes), selected);
+						player.getFromStream(Networking.getInstance().getSongByteStream(artist, album, title));
 						player.play();
 						
 					}catch(Exception e){
+						e.printStackTrace();
 						System.err.println(e.getMessage());
 					}
 					
@@ -142,10 +139,17 @@ public class PlayerController implements Initializable{
 		
 	}
 	
+	/**
+	 * Sets album art, title, album and artist name on the player screen
+	 */
 	public void setSongData(Song song){
 		Platform.runLater(() -> {
+			String album = song.getAlbum();
+			
 			songLabel.setText(song.getTitle());
-			albumLabel.setText(song.getArtist() + " - " + song.getAlbum());
+			albumLabel.setText(song.getArtist() + " - " + album);
+			albumArt.setImage(AlbumArtCache.getImage(album));
+			
 		});
 		
 	}

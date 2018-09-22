@@ -5,6 +5,7 @@ import com.shardbytes.music.common.Song;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
@@ -143,6 +144,28 @@ public class Networking{
 			send(encryptAES(secKey, ivParameterSpec, title));
 			
 			return reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), byte[].class);
+			
+		}
+		return null;
+		
+	}
+	
+	CipherInputStream getSongByteStream(String artist, String album, String title) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidKeyException, ClassNotFoundException, InvalidAlgorithmParameterException{
+		if(socket != null){
+			send(encrypt(serverKey, 6));
+			
+			byte[] ivBytes = reconstructObject(decrypt(privateKey, getMessage()), byte[].class);
+			IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
+			SecretKey secKey = getServerAESKey();
+			
+			send(encryptAES(secKey, ivParameterSpec, artist));
+			send(encryptAES(secKey, ivParameterSpec, album));
+			send(encryptAES(secKey, ivParameterSpec, title));
+			
+			Cipher aesCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+			aesCipher.init(Cipher.DECRYPT_MODE, secKey, ivParameterSpec);
+			
+			return new CipherInputStream(socket.getInputStream(), aesCipher);
 			
 		}
 		return null;
