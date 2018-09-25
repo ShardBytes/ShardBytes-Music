@@ -48,7 +48,7 @@ public class Networking{
 	
 	private PublicKey serverKey;
 	
-	boolean login(String name, String password) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, ClassNotFoundException{
+	public boolean login(String name, String password) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, ClassNotFoundException{
 		Configs configs = Configs.getInstance();
 		
 		socket = new Socket(configs.getServerIP(), configs.getServerPort());
@@ -69,7 +69,7 @@ public class Networking{
 		
 	}
 	
-	ArrayList<Album> getAllAlbums() throws NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, IOException, ClassNotFoundException, InvalidAlgorithmParameterException{
+	public ArrayList<Album> getAllAlbums() throws NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, IOException, ClassNotFoundException, InvalidAlgorithmParameterException{
 		if(socket != null){
 			send(encrypt(serverKey, 2));
 			
@@ -83,7 +83,7 @@ public class Networking{
 		
 	}
 	
-	Album getAlbumNonPrecise(String albumTitle) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidKeyException, ClassNotFoundException, InvalidAlgorithmParameterException{
+	public Album getAlbumNonPrecise(String albumTitle) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidKeyException, ClassNotFoundException, InvalidAlgorithmParameterException{
 		if(socket != null){
 			send(encrypt(serverKey, 3));
 			
@@ -100,7 +100,7 @@ public class Networking{
 		
 	}
 	
-	ArrayList<Song> getAllSongs() throws NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, IOException, ClassNotFoundException, InvalidAlgorithmParameterException{
+	public ArrayList<Song> getAllSongs() throws NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, IOException, ClassNotFoundException, InvalidAlgorithmParameterException{
 		if(socket != null){
 			send(encrypt(serverKey, 1));
 			
@@ -114,7 +114,7 @@ public class Networking{
 		
 	}
 	
-	ArrayList<Song> getSongSearch(String searchString) throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, IOException, ClassNotFoundException, InvalidAlgorithmParameterException{
+	public ArrayList<Song> getSongSearch(String searchString) throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, IOException, ClassNotFoundException, InvalidAlgorithmParameterException{
 		if(socket != null){
 			send(encrypt(serverKey, 5));
 			
@@ -131,7 +131,7 @@ public class Networking{
 		
 	}
 	
-	byte[] getSongBytes(String artist, String album, String title) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidKeyException, ClassNotFoundException, InvalidAlgorithmParameterException{
+	public byte[] getSongBytes(String artist, String album, String title) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidKeyException, ClassNotFoundException, InvalidAlgorithmParameterException{
 		if(socket != null){
 			send(encrypt(serverKey, 4));
 			
@@ -150,7 +150,7 @@ public class Networking{
 		
 	}
 	
-	CipherInputStream getSongByteStream(String artist, String album, String title) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidKeyException, ClassNotFoundException, InvalidAlgorithmParameterException{
+	public CipherInputStream getSongByteStream(String artist, String album, String title) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidKeyException, ClassNotFoundException, InvalidAlgorithmParameterException{
 		if(socket != null){
 			send(encrypt(serverKey, 6));
 			
@@ -172,7 +172,7 @@ public class Networking{
 		
 	}
 	
-	void disconnect() throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
+	public void disconnect() throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
 		if(socket != null){
 			send(encrypt(serverKey, 60));
 			

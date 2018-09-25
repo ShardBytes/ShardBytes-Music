@@ -1,10 +1,15 @@
-package com.shardbytes.music.client;
+package com.shardbytes.music.client.ui;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXTabPane;
 import com.jfoenix.controls.JFXTextField;
 import com.shardbytes.music.AudioPlayer;
+import com.shardbytes.music.client.AlbumArtCache;
+import com.shardbytes.music.client.JFXPlayer;
+import com.shardbytes.music.client.ListViewCell;
+import com.shardbytes.music.client.Networking;
+import com.shardbytes.music.client.Vector2;
 import com.shardbytes.music.common.Song;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;

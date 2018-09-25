@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox styleClass="mainWindowVBoxClass" stylesheets="@MainVBox.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.shardbytes.music.client.PlayerController">
+<VBox styleClass="mainWindowVBoxClass" stylesheets="@MainVBox.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.shardbytes.music.client.ui.PlayerController">
    <children>
       <AnchorPane fx:id="titleBarPane" prefHeight="22.0" prefWidth="600.0" styleClass="mainTitleBarClass" stylesheets="@TitleBar.css">
          <children>
@@ -56,7 +56,7 @@
                         </JFXButton>
                         <ImageView fx:id="albumArt" fitHeight="145.0" fitWidth="145.0" layoutX="228.0" layoutY="21.0" pickOnBounds="true">
                            <image>
-                              <Image url="@resources/empty.png" />
+                              <Image url="@../resources/empty.png" />
                            </image>
                         </ImageView>
                      </children>

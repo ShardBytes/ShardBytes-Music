@@ -1,8 +1,9 @@
-package com.shardbytes.music.client;
+package com.shardbytes.music.client.ui;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXPasswordField;
 import com.jfoenix.controls.JFXTextField;
+import com.shardbytes.music.client.Networking;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
