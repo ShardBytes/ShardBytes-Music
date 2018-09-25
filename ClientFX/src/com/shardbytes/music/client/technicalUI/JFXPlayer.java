@@ -1,5 +1,7 @@
-package com.shardbytes.music.client;
+package com.shardbytes.music.client.technicalUI;
 
+import com.shardbytes.music.client.Configs;
+import com.shardbytes.music.client.Networking;
 import com.shardbytes.music.client.ui.LoginDialogController;
 import com.shardbytes.music.client.ui.PlayerController;
 import javafx.application.Application;
@@ -33,7 +35,7 @@ public class JFXPlayer extends Application{
 	
 	@Override
 	public void start(Stage primaryStage) throws IOException{
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("ui/PlayerDesign.fxml"));
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/shardbytes/music/client/ui/PlayerDesign.fxml"));
 		root = loader.load();
 		
 		controller = loader.getController();
@@ -56,7 +58,7 @@ public class JFXPlayer extends Application{
 	
 	private void createLoginDialog(Stage primaryStage) throws IOException{
 		Stage loginDialog = new Stage(StageStyle.TRANSPARENT);
-		FXMLLoader dialogLoader = new FXMLLoader(getClass().getResource("ui/LoginDialog.fxml"));
+		FXMLLoader dialogLoader = new FXMLLoader(getClass().getResource("/com/shardbytes/music/client/ui/LoginDialog.fxml"));
 		Parent dialogRoot = dialogLoader.load();
 		Scene dialogScene = new Scene(dialogRoot);
 		LoginDialogController dialogController = dialogLoader.getController();

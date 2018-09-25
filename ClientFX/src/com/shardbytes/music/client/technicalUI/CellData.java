@@ -1,4 +1,4 @@
-package com.shardbytes.music.client;
+package com.shardbytes.music.client.technicalUI;
 
 import com.shardbytes.music.common.Song;
 import javafx.fxml.FXML;
@@ -17,7 +17,7 @@ public class CellData{
 	@FXML private ImageView albumArtImage;
 	
 	public CellData(){
-		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ListViewCell.fxml"));
+		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/shardbytes/music/client/technicalUI/ListViewCell.fxml"));
 		fxmlLoader.setController(this);
 		
 		try{

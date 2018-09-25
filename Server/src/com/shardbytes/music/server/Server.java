@@ -22,18 +22,22 @@ public class Server{
 	private static ArrayList<Client> clients = new ArrayList<>();
 
 	/**
-	 * Server main method
-	 * @param args Command line arguments
+	 * Server main method, put "noui" as first argument to stop Lanterna UI
+	 * and redirect all output to console
+	 * @param args Program arguments
 	 */
 	public static void main(String[] args){
-		new Server().start();
+		new Server().start(args.length <= 0 || !args[0].equals("noui"));
 	}
 
 	/**
 	 * Starts the server
 	 */
-	private void start(){
-		createUI();
+	private void start(boolean withUI){
+		if(withUI){
+			createUI();
+		}
+		
 		Configs.getInstance();
 		SongDB.getInstance();
 		PasswordDB.getInstance().register("plajdo", "heslo".toCharArray());
@@ -42,7 +46,7 @@ public class Server{
 			try{
 				ServerSocket server = createSocketBySettings();
 				ServerUI.log("Listening on " + server.getInetAddress().getHostName() + ":" + server.getLocalPort());
-				while(ui.getRenderStatus()){
+				while(!withUI || ui.getRenderStatus()){
 					Socket clientSocket = server.accept();
 					Client client = new Client(clientSocket);
 					clients.add(client);
@@ -56,7 +60,9 @@ public class Server{
 			}
 		});
 		
-		serverThread.setDaemon(true);
+		if(withUI){
+			serverThread.setDaemon(true);
+		}
 		serverThread.start();
 		
 	}

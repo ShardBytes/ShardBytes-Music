@@ -28,6 +28,8 @@ public final class ServerUI{
 	private boolean render;
 	private ExceptionMessage currentMessage;
 	
+	private static boolean created = false;
+	
 	private static ArrayList<ExceptionMessage> errorList = new ArrayList<>();
 	private static ArrayList<LogMessage> logList = new ArrayList<>();
 	
@@ -43,6 +45,7 @@ public final class ServerUI{
 			xSize = screen.getTerminalSize().getColumns();
 			ySize = screen.getTerminalSize().getRows();
 			render = true;
+			created = true;
 			
 		}catch(IOException e){
 			addExceptionMessage(e.getMessage());
@@ -53,11 +56,21 @@ public final class ServerUI{
 	}
 	
 	public static void addExceptionMessage(String message){
-		errorList.add(new ExceptionMessage(message));
+		if(created){
+			errorList.add(new ExceptionMessage(message));	
+		}else{
+			System.err.println(message);
+		}
+		
 	}
 	
 	public static void log(String message){
-		logList.add(new LogMessage(message));
+		if(created){
+			logList.add(new LogMessage(message));
+		}else{
+			System.out.println(new LogMessage(message));
+		}
+		
 	}
 	
 	public void stop(){

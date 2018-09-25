@@ -1,5 +1,6 @@
-package com.shardbytes.music.client;
+package com.shardbytes.music.client.technicalUI;
 
+import com.shardbytes.music.client.Networking;
 import javafx.scene.image.Image;
 
 import java.io.ByteArrayInputStream;

@@ -5,9 +5,9 @@ import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXTabPane;
 import com.jfoenix.controls.JFXTextField;
 import com.shardbytes.music.AudioPlayer;
-import com.shardbytes.music.client.AlbumArtCache;
-import com.shardbytes.music.client.JFXPlayer;
-import com.shardbytes.music.client.ListViewCell;
+import com.shardbytes.music.client.technicalUI.AlbumArtCache;
+import com.shardbytes.music.client.technicalUI.JFXPlayer;
+import com.shardbytes.music.client.technicalUI.ListViewCell;
 import com.shardbytes.music.client.Networking;
 import com.shardbytes.music.client.Vector2;
 import com.shardbytes.music.common.Song;
@@ -20,9 +20,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import javazoom.jl.decoder.JavaLayerException;
 
-import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.util.ResourceBundle;
 

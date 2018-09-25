@@ -1,4 +1,4 @@
-package com.shardbytes.music.client;
+package com.shardbytes.music.client.technicalUI;
 
 import com.shardbytes.music.common.Song;
 import javafx.scene.control.ListCell;

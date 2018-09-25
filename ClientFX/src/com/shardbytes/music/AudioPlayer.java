@@ -1,8 +1,7 @@
 package com.shardbytes.music;
 
-import com.shardbytes.music.client.JFXPlayer;
+import com.shardbytes.music.client.technicalUI.JFXPlayer;
 import com.shardbytes.music.common.Song;
-import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;
 
 import javax.sound.sampled.AudioFormat;
@@ -17,7 +16,6 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.function.Consumer;
 
 public class AudioPlayer{
 	

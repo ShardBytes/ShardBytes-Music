@@ -16,7 +16,7 @@ public class Configs{
 	private String serverIP;
 	private int serverPort;
 	
-	void load(){
+	public void load(){
 		Properties prop = new Properties();
 		
 		try(FileInputStream in = new FileInputStream("config.properties")){
@@ -44,7 +44,7 @@ public class Configs{
 		
 	}
 	
-	void save(){
+	public void save(){
 		Properties prop = new Properties();
 		
 		try(FileOutputStream fos = new FileOutputStream("config.properties")){
