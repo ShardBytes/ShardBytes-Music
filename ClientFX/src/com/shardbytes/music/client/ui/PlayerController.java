@@ -4,7 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXTabPane;
 import com.jfoenix.controls.JFXTextField;
-import com.shardbytes.music.AudioPlayer;
+import com.shardbytes.music.client.audio.AudioPlayer;
 import com.shardbytes.music.client.technicalUI.AlbumArtCache;
 import com.shardbytes.music.client.technicalUI.JFXPlayer;
 import com.shardbytes.music.client.technicalUI.ListViewCell;
@@ -20,7 +20,9 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import javazoom.jl.decoder.JavaLayerException;
 
+import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -39,10 +41,7 @@ public class PlayerController implements Initializable{
 	@FXML private JFXTabPane tabPane;
 	
 	@FXML private void playButtonClicked(){
-		new Thread(() -> { 
-			AudioPlayer.getInstance().pause();
-			
-		}).start();
+		AudioPlayer.getInstance().pause();
 		
 	}
 	
@@ -124,7 +123,7 @@ public class PlayerController implements Initializable{
 						String title = selected.getTitle();
 						
 						AudioPlayer player = AudioPlayer.getInstance();
-						player.getFromStream(Networking.getInstance().getSongByteStream(artist, album, title));
+						player.preloadAsBytes(new ByteArrayInputStream(Networking.getInstance().getSongBytes(artist, album, title)), selected);
 						player.play();
 						
 					}catch(Exception e){
