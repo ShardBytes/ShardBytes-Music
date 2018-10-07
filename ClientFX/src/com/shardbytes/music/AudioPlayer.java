@@ -1,15 +1,21 @@
-package com.shardbytes.music.client.audio;
+package com.shardbytes.music;
 
 import com.shardbytes.music.client.technicalUI.JFXPlayer;
 import com.shardbytes.music.common.Song;
-import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;
 
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class AudioPlayer{
 	
@@ -18,9 +24,8 @@ public class AudioPlayer{
 		return ourInstance;
 	}
 	private AudioPlayer(){}
-
-	private ByteArrayInputStream inputStream;
-	//private AudioInputStream inputStream;
+	
+	private AudioInputStream inputStream;
 	private AudioFormat format;
 	private DataLine.Info dataInfo;
 	private SourceDataLine line;
@@ -31,53 +36,60 @@ public class AudioPlayer{
 	private boolean paused = false;
 	private int currentPause = 0;
 	
-	public void preloadAsBytes(ByteArrayInputStream songByteStream) throws JavaLayerException{
+	public void preloadAsBytes(ByteArrayInputStream songByteStream) throws IOException, UnsupportedAudioFileException, LineUnavailableException{
 		if(playing){
 			stop();
 		}
-
-		/*
+		
 		inputStream = AudioSystem.getAudioInputStream(songByteStream);
 		format = constructNewAudioFormat(inputStream.getFormat());
 		dataInfo = new DataLine.Info(SourceDataLine.class, format);
 		line = (SourceDataLine)AudioSystem.getLine(dataInfo);
 		line.open();
-		*/
-
-		inputStream = songByteStream;
-		player = new Player(inputStream);
-
+		
 	}
 	
-	public void preloadAsBytes(ByteArrayInputStream songByteStream, Song songData) throws JavaLayerException{
+	public void preloadAsBytes(ByteArrayInputStream songByteStream, Song songData) throws UnsupportedAudioFileException, IOException, LineUnavailableException{
 		preloadAsBytes(songByteStream);
 		JFXPlayer.getController().setSongData(songData);
 	}
 	
-	public void play() throws JavaLayerException{
+	public void getFromStream(InputStream stream) throws IOException, UnsupportedAudioFileException, LineUnavailableException{
+		if(playing){
+			stop();
+		}
+		
+		inputStream = AudioSystem.getAudioInputStream(new BufferedInputStream(stream));
+		format = constructNewAudioFormat(inputStream.getFormat());
+		dataInfo = new DataLine.Info(SourceDataLine.class, format);
+		line = (SourceDataLine)AudioSystem.getLine(dataInfo);
+		line.open();
+		
+	}
+	
+	public void play(){
 		currentPause = 0;
 		playing = true;
-		player.play();
+		line.start();
 		
 	}
 	
 	public void stop(){
 		currentPause = 0;
 		playing = false;
-		player.close();
+		line.stop();
 		
 	}
 	
-	public void pause() throws JavaLayerException{
+	public void pause(){
 		if(playing && !paused){
 			paused = true;
-			currentPause = player.getPosition();
-			player.close();
+			currentPause = line.getFramePosition();
+			line.stop();
 			
 		}else if(playing && paused){
 			paused = false;
-			player = new Player(inputStream);
-			player.play(currentPause);
+			line.start();
 			
 		}
 		
