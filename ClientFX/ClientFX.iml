@@ -7,33 +7,8 @@
     </content>
     <orderEntry type="jdk" jdkName="10" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../lib/jfoenix-9.0.6.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../lib/fontawesomefx-commons-9.1.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../lib/fontawesomefx-fontawesome-4.7.0-9.1.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="library" name="mp3spi" level="project" />
+    <orderEntry type="library" name="JFoenix 9.0.6" level="project" />
+    <orderEntry type="library" name="FontAwesomeFX 9.1.2" level="project" />
+    <orderEntry type="library" name="CASampledSP" level="project" />
   </component>
 </module>
