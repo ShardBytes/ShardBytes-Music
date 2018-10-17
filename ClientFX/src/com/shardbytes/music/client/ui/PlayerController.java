@@ -2,6 +2,7 @@ package com.shardbytes.music.client.ui;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
+import com.jfoenix.controls.JFXSlider;
 import com.jfoenix.controls.JFXTabPane;
 import com.jfoenix.controls.JFXTextField;
 import com.shardbytes.music.client.audio.AudioPlayer;
@@ -19,6 +20,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Border;
 import javafx.stage.Stage;
 
 import java.io.ByteArrayInputStream;
@@ -27,22 +29,28 @@ import java.util.ResourceBundle;
 
 public class PlayerController implements Initializable{
 	
+	//Main screen main controls
 	@FXML private JFXButton playButton;
 	@FXML private Label songLabel;
 	@FXML private Label albumLabel;
 	@FXML private ImageView albumArt;
 	
+	//Song position controls
+	@FXML private Label timeCurrent;
+	@FXML private Label timeLeft;
+	@FXML private JFXSlider timeSlider;
+	
+	//Server search screen controls
 	@FXML private JFXTextField searchTextField;
 	@FXML private JFXListView searchResultsList;
 	@FXML private Label searchResultsLabel;
 	
+	//Custom title bar
 	@FXML private AnchorPane titleBarPane;
 	@FXML private JFXTabPane tabPane;
 	
 	@FXML private void playButtonClicked(){
-		new Thread(() -> { 
-			try{AudioPlayer.getInstance().pause();}catch(Exception e){System.err.println(e.getMessage());}
-		}).start();
+		AudioPlayer.getInstance().pause();
 		
 	}
 	
@@ -124,12 +132,11 @@ public class PlayerController implements Initializable{
 						String title = selected.getTitle();
 						
 						AudioPlayer player = AudioPlayer.getInstance();
-						//player.getFromStream(Networking.getInstance().getSongByteStream(artist, album, title));
 						player.preloadAsBytes(new ByteArrayInputStream(Networking.getInstance().getSongBytes(artist, album, title)), selected);
 						player.play();
 						
 					}catch(Exception e){
-						e.printStackTrace();
+						e.printStackTrace(); //TODO: remove this
 						System.err.println(e.getMessage());
 					}
 					
@@ -145,6 +152,7 @@ public class PlayerController implements Initializable{
 	
 	/**
 	 * Sets album art, title, album and artist name on the player screen
+	 * @param song Song object to read data from
 	 */
 	public void setSongData(Song song){
 		Platform.runLater(() -> {
@@ -155,6 +163,10 @@ public class PlayerController implements Initializable{
 			albumArt.setImage(AlbumArtCache.getImage(album));
 			
 		});
+		
+	}
+	
+	public void setTime(int time){
 		
 	}
 	

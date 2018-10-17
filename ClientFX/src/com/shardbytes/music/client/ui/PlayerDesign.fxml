@@ -2,6 +2,7 @@
 
 <?import com.jfoenix.controls.JFXButton?>
 <?import com.jfoenix.controls.JFXListView?>
+<?import com.jfoenix.controls.JFXSlider?>
 <?import com.jfoenix.controls.JFXTabPane?>
 <?import com.jfoenix.controls.JFXTextField?>
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
@@ -39,26 +40,29 @@
                      <children>
                         <Label fx:id="songLabel" alignment="CENTER" layoutX="161.0" layoutY="176.0" prefHeight="17.0" prefWidth="280.0" text="Current song" textAlignment="CENTER" textFill="WHITE" />
                         <Label fx:id="albumLabel" alignment="CENTER" layoutX="161.0" layoutY="193.0" prefHeight="17.0" prefWidth="280.0" text="Author - album" textAlignment="CENTER" textFill="#ffffffb3" />
-                        <JFXButton fx:id="playButton" layoutX="250.0" layoutY="223.0" onAction="#playButtonClicked" prefHeight="27.0" prefWidth="100.0" style="-fx-background-color: #3E50B4;" text="Play/Pause" textFill="WHITE">
+                        <JFXButton fx:id="playButton" layoutX="250.0" layoutY="265.0" onAction="#playButtonClicked" prefHeight="27.0" prefWidth="100.0" style="-fx-background-color: #3E50B4;" text="Play/Pause" textFill="WHITE">
                            <graphic>
                               <FontAwesomeIconView fill="WHITE" glyphName="PLAY" />
                            </graphic>
                         </JFXButton>
-                        <JFXButton layoutX="250.0" layoutY="273.0" prefHeight="27.0" prefWidth="100.0" style="-fx-background-color: #3E50B4;" text="Previous" textFill="WHITE">
+                        <JFXButton layoutX="61.0" layoutY="104.0" prefHeight="27.0" prefWidth="100.0" style="-fx-background-color: #3E50B4;" text="Previous" textFill="WHITE">
                            <graphic>
                               <FontAwesomeIconView fill="WHITE" glyphName="CHEVRON_LEFT" />
                            </graphic>
                         </JFXButton>
-                        <JFXButton layoutX="250.0" layoutY="308.0" prefHeight="27.0" prefWidth="100.0" style="-fx-background-color: #3E50B4;" text="Next" textFill="WHITE">
+                        <JFXButton layoutX="61.0" layoutY="139.0" prefHeight="27.0" prefWidth="100.0" style="-fx-background-color: #3E50B4;" text="Next" textFill="WHITE">
                            <graphic>
                               <FontAwesomeIconView fill="WHITE" glyphName="CHEVRON_RIGHT" />
                            </graphic>
                         </JFXButton>
-                        <ImageView fx:id="albumArt" fitHeight="145.0" fitWidth="145.0" layoutX="228.0" layoutY="21.0" pickOnBounds="true">
+                        <ImageView fx:id="albumArt" fitHeight="145.0" fitWidth="145.0" layoutX="228.0" layoutY="21.0" pickOnBounds="true" style="-fx-border-radius: 5 5 5 5; -fx-background-radius: 5 5 5 5;">
                            <image>
                               <Image url="@../resources/empty.png" />
                            </image>
                         </ImageView>
+                        <JFXSlider fx:id="timeSlider" layoutX="205.0" layoutY="231.0" prefHeight="20.0" prefWidth="190.0" style="-fx-background-color: #424242; -fx-border-radius: 5 5 5 5; -fx-background-radius: 5 5 5 5;" />
+                        <Label fx:id="timeCurrent" alignment="CENTER_RIGHT" layoutX="142.0" layoutY="233.0" prefHeight="17.0" prefWidth="58.0" text="0:00" textFill="#ffffffb3" />
+                        <Label fx:id="timeLeft" layoutX="400.0" layoutY="233.0" prefHeight="17.0" prefWidth="58.0" text="0:00" textFill="#ffffffb3" />
                      </children>
                   </AnchorPane>
               </content>

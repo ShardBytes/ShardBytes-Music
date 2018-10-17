@@ -2,14 +2,17 @@ package com.shardbytes.music.client.audio;
 
 import com.shardbytes.music.client.technicalUI.JFXPlayer;
 import com.shardbytes.music.common.Song;
-import javazoom.jl.decoder.JavaLayerException;
-import javazoom.jl.player.Player;
+import javafx.scene.media.MediaPlayer;
 
-import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class AudioPlayer{
 	
@@ -17,78 +20,75 @@ public class AudioPlayer{
 	public static AudioPlayer getInstance(){
 		return ourInstance;
 	}
-	private AudioPlayer(){}
-
-	private ByteArrayInputStream inputStream;
-	//private AudioInputStream inputStream;
-	private AudioFormat format;
-	private DataLine.Info dataInfo;
-	private SourceDataLine line;
-	private Clip clip;
-	private Player player;
+	private AudioPlayer(){
+		try{
+			clip = AudioSystem.getClip();
+		}catch(LineUnavailableException e){
+			System.err.println(e.getMessage());
+		}
+		
+	}
 	
+	private ExecutorService service = Executors.newCachedThreadPool();
+	private Clip clip;
+	
+	private ByteArrayInputStream stream;
 	private boolean playing = false;
 	private boolean paused = false;
 	private int currentPause = 0;
 	
-	public void preloadAsBytes(ByteArrayInputStream songByteStream) throws JavaLayerException{
+	public void preloadAsBytes(ByteArrayInputStream songByteStream) throws IOException, UnsupportedAudioFileException, LineUnavailableException{
 		if(playing){
-			stop();
+			stopPrivate();
 		}
-
-		/*
-		inputStream = AudioSystem.getAudioInputStream(songByteStream);
-		format = constructNewAudioFormat(inputStream.getFormat());
-		dataInfo = new DataLine.Info(SourceDataLine.class, format);
-		line = (SourceDataLine)AudioSystem.getLine(dataInfo);
-		line.open();
-		*/
-
-		inputStream = songByteStream;
-		player = new Player(inputStream);
-
+		
+		System.out.println(Arrays.toString(AudioSystem.getAudioFileTypes()));
+		
+		stream = songByteStream;
+		clip.open(AudioSystem.getAudioInputStream(stream));
+		
 	}
 	
-	public void preloadAsBytes(ByteArrayInputStream songByteStream, Song songData) throws JavaLayerException{
+	public void preloadAsBytes(ByteArrayInputStream songByteStream, Song songData) throws UnsupportedAudioFileException, IOException, LineUnavailableException{
 		preloadAsBytes(songByteStream);
 		JFXPlayer.getController().setSongData(songData);
 	}
 	
-	public void play() throws JavaLayerException{
+	public void play(){
+		service.submit(this::playPrivate);
+	}
+	
+	public void pause(){
+		service.submit(this::pausePrivate);
+	}
+	
+	private void playPrivate(){
 		currentPause = 0;
 		playing = true;
-		player.play();
+		clip.start();
 		
 	}
 	
-	public void stop(){
+	private void stopPrivate(){
 		currentPause = 0;
 		playing = false;
-		player.close();
+		clip.stop();
 		
 	}
 	
-	public void pause() throws JavaLayerException{
+	private void pausePrivate(){
 		if(playing && !paused){
 			paused = true;
-			currentPause = player.getPosition();
-			player.close();
+			currentPause = clip.getFramePosition();
+			clip.stop();
 			
 		}else if(playing && paused){
 			paused = false;
-			player = new Player(inputStream);
-			player.play(currentPause);
+			clip.setFramePosition(currentPause);
+			clip.start();
 			
 		}
 		
-	}
-	
-	private AudioFormat constructNewAudioFormat(AudioFormat originalFormat){
-		final int channels = originalFormat.getChannels();
-		final float sampleRate = originalFormat.getSampleRate();
-		
-		return new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, sampleRate, 16, channels, channels * 2, sampleRate, false);
-				
 	}
 	
 }
