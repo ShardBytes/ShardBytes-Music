@@ -1,6 +1,7 @@
 package com.shardbytes.music.server.Database;
 
 import com.shardbytes.music.common.Album;
+import com.shardbytes.music.common.DecompressedData;
 import com.shardbytes.music.common.Song;
 import com.shardbytes.music.server.Configs;
 import com.shardbytes.music.server.UI.ServerUI;
@@ -13,20 +14,24 @@ import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagException;
 
-import java.io.BufferedOutputStream;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
+import static com.shardbytes.music.server.UI.ServerUI.addExceptionMessage;
+
 public class SongDB{
 	
 	private static SongDB ourInstance = new SongDB();
-	
-	//private File databaseFolder = new File("/Users/filipsasala/Desktop/ShardBytes Music.sbmd");				//Mac test version
 	private File databaseFolder = new File(Configs.getInstance().getDatabaseLocation());
 	
 	private ArrayList<Song> allDatabaseSongs;	//TODO: Save & load these from file when there is no need to sync stuff
@@ -106,7 +111,7 @@ public class SongDB{
 			return results;
 			
 		}catch(CannotReadException | TagException | ReadOnlyFileException | InvalidAudioFrameException | IOException e){
-			ServerUI.addExceptionMessage(e.getMessage());
+			addExceptionMessage(e.getMessage());
 		}
 		return null;
 	
@@ -120,7 +125,7 @@ public class SongDB{
 			return tag.getFirstArtwork().getBinaryData();
 			
 		}catch(CannotReadException | TagException | ReadOnlyFileException | InvalidAudioFrameException | IOException e){
-			ServerUI.addExceptionMessage(e.getMessage());
+			addExceptionMessage(e.getMessage());
 		}
 		return null;
 	}
@@ -220,6 +225,42 @@ public class SongDB{
 		
 		return resultSongs;
 		
+	}
+
+	public static DecompressedData decompressSongToPCM(byte[] compressedBytes, AudioFormat audioFormat){
+		if(compressedBytes == null || compressedBytes.length == 0 || audioFormat == null){
+			throw new IllegalArgumentException("Invalid arguments passed");
+		}
+
+		try(final ByteArrayInputStream input = new ByteArrayInputStream(compressedBytes); final AudioInputStream audioSource = AudioSystem.getAudioInputStream(input)){
+			AudioFormat sourceFormat = audioSource.getFormat();
+			AudioFormat outputFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, sourceFormat.getSampleRate(), 16, sourceFormat.getChannels(), sourceFormat.getChannels() * 2, sourceFormat.getSampleRate(), false);
+
+			try(final AudioInputStream audioInputStreamForConversion1 = AudioSystem.getAudioInputStream(outputFormat, audioSource); final AudioInputStream audioInputStreamForConversion2 = AudioSystem.getAudioInputStream(audioFormat, audioInputStreamForConversion1); final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()){
+				byte[] buffer = new byte[8192];
+
+				while(true){
+					int readCount = audioInputStreamForConversion2.read(buffer, 0, buffer.length);
+					if(readCount == -1){
+						break;
+					}
+
+					byteArrayOutputStream.write(buffer, 0, readCount);
+
+				}
+				DecompressedData data = new DecompressedData();
+				data.setBytes(byteArrayOutputStream.toByteArray());
+				data.setAudioFormat(outputFormat);
+
+				return data;
+
+			}
+
+		}catch(IOException | UnsupportedAudioFileException e){
+			addExceptionMessage(e.getMessage());
+		}
+		return null;
+
 	}
 	
 }
