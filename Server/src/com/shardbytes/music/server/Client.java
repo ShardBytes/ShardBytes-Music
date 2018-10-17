@@ -1,5 +1,7 @@
 package com.shardbytes.music.server;
 
+import com.shardbytes.music.common.DecompressedData;
+import com.shardbytes.music.common.Song;
 import com.shardbytes.music.server.Database.PasswordDB;
 import com.shardbytes.music.server.Database.SongDB;
 
@@ -12,6 +14,10 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -88,7 +94,7 @@ public class Client{
 					
 				}
 				
-			}catch(IOException | ClassNotFoundException | NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException e){
+			}catch(IOException | ClassNotFoundException | NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException | UnsupportedAudioFileException e){
 				addExceptionMessage(e.getMessage());
 			}
 			
@@ -97,7 +103,7 @@ public class Client{
 		
 	}
 	
-	private void processCommand(byte command) throws NoSuchAlgorithmException, IOException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, ClassNotFoundException{
+	private void processCommand(byte command) throws NoSuchAlgorithmException, IOException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, ClassNotFoundException, UnsupportedAudioFileException{
 		switch(command){
 			case 0:{
 				log("0");
@@ -181,14 +187,20 @@ public class Client{
 				IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
 				send(encrypt(clientKey, ivBytes));
 				send(encrypt(clientKey, secKey.getEncoded()));
-				
+
 				String artist = reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), String.class);
 				String album = reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), String.class);
 				String title = reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), String.class);
-				
-				byte[] songBytes = Files.readAllBytes(SongDB.getInstance().getSong(artist, album, title).getFile().toPath());
-				send(encryptAES(secKey, ivParameterSpec, songBytes));
-				
+
+				Song song = SongDB.getInstance().getSong(artist, album, title);
+				AudioInputStream inputStream = AudioSystem.getAudioInputStream(song.getFile());
+				AudioFormat audioFormat = inputStream.getFormat();
+
+				DecompressedData songData = SongDB.decompressSongToPCM(Files.readAllBytes(song.getFile().toPath()), audioFormat);
+
+				send(encryptAES(secKey, ivParameterSpec, songData));
+
+				inputStream.close();
 				break;
 				
 			}

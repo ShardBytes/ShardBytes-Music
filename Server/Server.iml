@@ -38,5 +38,6 @@
         </SOURCES>
       </library>
     </orderEntry>
+    <orderEntry type="library" name="com.googlecode.soundlibs:mp3spi:1.9.5.4" level="project" />
   </component>
 </module>
