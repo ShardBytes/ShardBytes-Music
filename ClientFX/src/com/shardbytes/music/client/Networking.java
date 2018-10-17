@@ -143,6 +143,8 @@ public class Networking{
 		
 	}
 	
+	//TODO: remove all streaming stuff for now
+	@Deprecated
 	public CipherInputStream getSongByteStream(String artist, String album, String title) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidKeyException, ClassNotFoundException, InvalidAlgorithmParameterException{
 		if(socket != null){
 			send(encrypt(serverKey, 6));

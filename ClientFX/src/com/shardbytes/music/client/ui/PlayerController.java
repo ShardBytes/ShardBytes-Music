@@ -132,7 +132,7 @@ public class PlayerController implements Initializable{
 						String title = selected.getTitle();
 						
 						AudioPlayer player = AudioPlayer.getInstance();
-						player.preloadAsBytes(new ByteArrayInputStream(Networking.getInstance().getSongBytes(artist, album, title)), selected);
+						player.load(Networking.getInstance().getSongBytes(artist, album, title), selected);
 						player.play();
 						
 					}catch(Exception e){
