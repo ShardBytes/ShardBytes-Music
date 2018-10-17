@@ -1,6 +1,7 @@
 package com.shardbytes.music.client;
 
 import com.shardbytes.music.common.Album;
+import com.shardbytes.music.common.DecompressedData;
 import com.shardbytes.music.common.Song;
 
 import javax.crypto.BadPaddingException;
@@ -124,7 +125,7 @@ public class Networking{
 		
 	}
 	
-	public byte[] getSongBytes(String artist, String album, String title) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidKeyException, ClassNotFoundException, InvalidAlgorithmParameterException{
+	public DecompressedData getSongBytes(String artist, String album, String title) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidKeyException, ClassNotFoundException, InvalidAlgorithmParameterException{
 		if(socket != null){
 			send(encrypt(serverKey, 4));
 			
@@ -136,7 +137,7 @@ public class Networking{
 			send(encryptAES(secKey, ivParameterSpec, album));
 			send(encryptAES(secKey, ivParameterSpec, title));
 			
-			return reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), byte[].class);
+			return reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), DecompressedData.class);
 			
 		}
 		return null;

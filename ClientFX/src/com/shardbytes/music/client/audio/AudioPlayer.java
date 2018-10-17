@@ -1,13 +1,12 @@
 package com.shardbytes.music.client.audio;
 
 import com.shardbytes.music.client.technicalUI.JFXPlayer;
+import com.shardbytes.music.common.DecompressedData;
 import com.shardbytes.music.common.Song;
 
-import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
-import java.io.IOException;
 
 public class AudioPlayer{
 	
@@ -19,13 +18,11 @@ public class AudioPlayer{
 	
 	private Clip clip;
 	
-	public void load(byte[] songBytes, Song songData) throws IOException, LineUnavailableException{
+	public void load(DecompressedData songBytes, Song songData) throws LineUnavailableException{
 		JFXPlayer.getController().setSongData(songData);
 		
-		
-		
 		clip = AudioSystem.getClip();
-		clip.open();
+		clip.open(songBytes.getAudioFormat(), songBytes.getBytes(), 0, 8192);
 		
 	}
 	
