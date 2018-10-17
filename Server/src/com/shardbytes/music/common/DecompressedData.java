@@ -1,18 +1,19 @@
 package com.shardbytes.music.common;
 
-import javax.sound.sampled.AudioFormat;
+import com.shardbytes.music.common.javasound.SerializableAudioFormat;
+
 import java.io.Serializable;
 
 public class DecompressedData implements Serializable{
 
-	private AudioFormat audioFormat;
+	private SerializableAudioFormat audioFormat;
 	private byte[] bytes;
 
-	public AudioFormat getAudioFormat(){
+	public SerializableAudioFormat getAudioFormat(){
 		return audioFormat;
 	}
 
-	public void setAudioFormat(AudioFormat audioFormat){
+	public void setAudioFormat(SerializableAudioFormat audioFormat){
 		this.audioFormat = audioFormat;
 	}
 

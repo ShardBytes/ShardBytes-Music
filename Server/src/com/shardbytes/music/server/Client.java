@@ -95,6 +95,7 @@ public class Client{
 				}
 				
 			}catch(IOException | ClassNotFoundException | NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException | UnsupportedAudioFileException e){
+				e.printStackTrace();
 				addExceptionMessage(e.getMessage());
 			}
 			

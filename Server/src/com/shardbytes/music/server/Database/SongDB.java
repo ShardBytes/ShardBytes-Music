@@ -3,6 +3,7 @@ package com.shardbytes.music.server.Database;
 import com.shardbytes.music.common.Album;
 import com.shardbytes.music.common.DecompressedData;
 import com.shardbytes.music.common.Song;
+import com.shardbytes.music.common.javasound.SerializableAudioFormat;
 import com.shardbytes.music.server.Configs;
 import com.shardbytes.music.server.UI.ServerUI;
 import org.jaudiotagger.audio.AudioFile;
@@ -236,7 +237,7 @@ public class SongDB{
 			AudioFormat sourceFormat = audioSource.getFormat();
 			AudioFormat outputFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, sourceFormat.getSampleRate(), 16, sourceFormat.getChannels(), sourceFormat.getChannels() * 2, sourceFormat.getSampleRate(), false);
 
-			try(final AudioInputStream audioInputStreamForConversion1 = AudioSystem.getAudioInputStream(outputFormat, audioSource); final AudioInputStream audioInputStreamForConversion2 = AudioSystem.getAudioInputStream(audioFormat, audioInputStreamForConversion1); final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()){
+			try(final AudioInputStream audioInputStreamForConversion1 = AudioSystem.getAudioInputStream(sourceFormat, audioSource); final AudioInputStream audioInputStreamForConversion2 = AudioSystem.getAudioInputStream(outputFormat, audioInputStreamForConversion1); final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()){
 				byte[] buffer = new byte[8192];
 
 				while(true){
@@ -250,7 +251,7 @@ public class SongDB{
 				}
 				DecompressedData data = new DecompressedData();
 				data.setBytes(byteArrayOutputStream.toByteArray());
-				data.setAudioFormat(outputFormat);
+				data.setAudioFormat(new SerializableAudioFormat(outputFormat));
 
 				return data;
 
