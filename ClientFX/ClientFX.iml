@@ -9,5 +9,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="JFoenix 9.0.6" level="project" />
     <orderEntry type="library" name="FontAwesomeFX 9.1.2" level="project" />
+    <orderEntry type="library" name="Apache Commons IO 2.6" level="project" />
   </component>
 </module>

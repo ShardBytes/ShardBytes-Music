@@ -13,6 +13,9 @@ import com.shardbytes.music.client.Networking;
 import com.shardbytes.music.client.Vector2;
 import com.shardbytes.music.common.Song;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -51,7 +54,6 @@ public class PlayerController implements Initializable{
 	
 	@FXML private void playButtonClicked(){
 		AudioPlayer.getInstance().pause();
-		
 	}
 	
 	@FXML private void doSearch() throws Exception{
@@ -131,12 +133,16 @@ public class PlayerController implements Initializable{
 						String album = selected.getAlbum();
 						String title = selected.getTitle();
 						
+						SimpleDoubleProperty simpleDoubleProperty = new SimpleDoubleProperty();
+						simpleDoubleProperty.addListener((observable, oldValue, newValue) -> {
+							timeSlider.setValue(newValue.doubleValue());
+						});
+						
 						AudioPlayer player = AudioPlayer.getInstance();
-						player.load(Networking.getInstance().getSongBytes(artist, album, title), selected);
+						player.load(Networking.getInstance().getSongBytes(artist, album, title, simpleDoubleProperty));
 						player.play();
 						
 					}catch(Exception e){
-						e.printStackTrace(); //TODO: remove this
 						System.err.println(e.getMessage());
 					}
 					
@@ -163,6 +169,10 @@ public class PlayerController implements Initializable{
 			albumArt.setImage(AlbumArtCache.getImage(album));
 			
 		});
+		
+	}
+	
+	public void setLoading(){
 		
 	}
 	

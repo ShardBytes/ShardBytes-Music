@@ -18,11 +18,13 @@ public class AudioPlayer{
 	
 	private Clip clip;
 	
-	public void load(DecompressedData songBytes, Song songData) throws LineUnavailableException{
-		JFXPlayer.getController().setSongData(songData);
+	public void load(DecompressedData songBytes) throws LineUnavailableException{
+		if(clip == null){
+			clip = AudioSystem.getClip();
+		}
 		
-		clip = AudioSystem.getClip();
-		clip.open(songBytes.getAudioFormat(), songBytes.getBytes(), 0, 8192);
+		stop();
+		clip.open(songBytes.getAudioFormat().getFormat(), songBytes.getBytes(), 0, songBytes.getBytes().length);
 		
 	}
 	
@@ -32,11 +34,12 @@ public class AudioPlayer{
 	
 	public void pause(){
 		System.out.println("us pos = " + clip.getMicrosecondPosition());
-		clip.stop();
 	}
 	
 	public void stop(){
 		clip.stop();
+		clip.flush();
+		clip.close();
 	}
 	
 }
