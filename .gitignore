@@ -62,3 +62,4 @@ fabric.properties
 # Editor-based Rest Client
 .idea/httpRequests
 *.properties
+.idea/vcs.xml
