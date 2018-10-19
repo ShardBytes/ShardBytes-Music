@@ -1,5 +1,6 @@
 package com.shardbytes.music.server;
 
+import com.shardbytes.music.server.Database.PCMCache;
 import com.shardbytes.music.server.Database.PasswordDB;
 import com.shardbytes.music.server.UI.ServerUI;
 import com.shardbytes.music.server.Database.SongDB;
@@ -40,6 +41,7 @@ public class Server{
 		
 		Configs.getInstance();
 		SongDB.getInstance();
+		PCMCache.getInstance();
 		PasswordDB.getInstance().register("plajdo", "heslo".toCharArray());
 		
 		Thread serverThread = new Thread(() -> {

@@ -2,6 +2,7 @@ package com.shardbytes.music.server;
 
 import com.shardbytes.music.common.DecompressedData;
 import com.shardbytes.music.common.Song;
+import com.shardbytes.music.common.javasound.SerializableAudioFormat;
 import com.shardbytes.music.server.Database.PasswordDB;
 import com.shardbytes.music.server.Database.SongDB;
 
@@ -33,6 +34,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 import static com.shardbytes.music.server.UI.ServerUI.log;
 import static com.shardbytes.music.server.UI.ServerUI.addExceptionMessage;
@@ -196,12 +198,21 @@ public class Client{
 				Song song = SongDB.getInstance().getSong(artist, album, title);
 				AudioInputStream inputStream = AudioSystem.getAudioInputStream(song.getFile());
 				AudioFormat audioFormat = inputStream.getFormat();
+				DecompressedData songData = SongDB.decompressSongToPCM(song, audioFormat);
 
-				DecompressedData songData = SongDB.decompressSongToPCM(Files.readAllBytes(song.getFile().toPath()), audioFormat);
+				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+				ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+				objectOutputStream.writeObject(songData);
 
-				send(encryptAES(secKey, ivParameterSpec, songData));
+				byte[] serializedData = byteArrayOutputStream.toByteArray();
+				int dataLength = serializedData.length;
+				
+				//send(encrypt(clientKey, dataLength));
+				send(encryptAES(secKey, ivParameterSpec, serializedData));
 
 				inputStream.close();
+				objectOutputStream.close();
+				byteArrayOutputStream.close();
 				break;
 				
 			}
@@ -223,42 +234,6 @@ public class Client{
 				String searchString = reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), String.class);
 				
 				send(encryptAES(secKey, ivParameterSpec, SongDB.getInstance().doSongSearch(searchString, 10)));
-				
-				break;
-				
-			}
-			
-			case 6:{
-				log(nickname + " requested a song stream. (6)");
-				
-				KeyGenerator generator = KeyGenerator.getInstance("AES");
-				generator.init(128);
-				SecretKey secKey = generator.generateKey();
-				
-				SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
-				byte[] ivBytes = new byte[16];
-				secureRandom.nextBytes(ivBytes);
-				IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
-				send(encrypt(clientKey, ivBytes));
-				send(encrypt(clientKey, secKey.getEncoded()));
-				
-				String artist = reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), String.class);
-				String album = reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), String.class);
-				String title = reconstructObject(decryptAES(secKey, ivParameterSpec, getMessage()), String.class);
-				
-				byte[] songBytes = Files.readAllBytes(SongDB.getInstance().getSong(artist, album, title).getFile().toPath());
-				
-				Cipher aesCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-				aesCipher.init(Cipher.ENCRYPT_MODE, secKey, ivParameterSpec);
-				
-				try{
-					CipherOutputStream stream = new CipherOutputStream(socket.getOutputStream(), aesCipher);
-					stream.write(songBytes);
-					stream.flush();
-				}catch(Exception e){
-					log("Audio stream to " + nickname + " closed.");
-					log(socket.toString());
-				}
 				
 				break;
 				
@@ -312,8 +287,13 @@ public class Client{
 		
 		Cipher cipher = Cipher.getInstance("RSA");
 		cipher.init(Cipher.ENCRYPT_MODE, otherSidePublicKey);
-		
-		return cipher.doFinal(byteArrayOutputStream.toByteArray());
+
+		byte[] finalOutput = cipher.doFinal(byteArrayOutputStream.toByteArray());
+
+		objectOutputStream.close();
+		byteArrayOutputStream.close();
+
+		return finalOutput;
 		
 	}
 	
@@ -324,6 +304,14 @@ public class Client{
 		return cipher.doFinal(encryptedData);
 		
 	}
+
+	private byte[] encryptAES(SecretKey secKey, IvParameterSpec iv, byte[] serializedData) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException{
+		Cipher aesCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+		aesCipher.init(Cipher.ENCRYPT_MODE, secKey, iv);
+
+		return aesCipher.doFinal(serializedData);
+
+	}
 	
 	private byte[] encryptAES(SecretKey secKey, IvParameterSpec iv, Object message) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException{
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -332,8 +320,13 @@ public class Client{
 		
 		Cipher aesCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 		aesCipher.init(Cipher.ENCRYPT_MODE, secKey, iv);
-		
-		return aesCipher.doFinal(byteArrayOutputStream.toByteArray());
+
+		byte[] finalOutput = aesCipher.doFinal(byteArrayOutputStream.toByteArray());
+
+		objectOutputStream.close();
+		byteArrayOutputStream.close();
+
+		return finalOutput;
 		
 	}
 	
@@ -348,8 +341,13 @@ public class Client{
 	private <Type> Type reconstructObject(byte[] rawData, Class<Type> typeClass) throws IOException, ClassNotFoundException{
 		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(rawData);
 		ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
-		
-		return typeClass.cast(objectInputStream.readObject());
+
+		Type finalOutput = typeClass.cast(objectInputStream.readObject());
+
+		objectInputStream.close();
+		byteArrayInputStream.close();
+
+		return finalOutput;
 		
 	}
 	
