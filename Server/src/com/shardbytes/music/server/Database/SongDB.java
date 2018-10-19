@@ -5,7 +5,6 @@ import com.shardbytes.music.common.DecompressedData;
 import com.shardbytes.music.common.Song;
 import com.shardbytes.music.common.javasound.SerializableAudioFormat;
 import com.shardbytes.music.server.Configs;
-import com.shardbytes.music.server.UI.ServerUI;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
@@ -29,6 +28,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import static com.shardbytes.music.server.UI.ServerUI.addExceptionMessage;
+import static com.shardbytes.music.server.UI.ServerUI.log;
 
 public class SongDB{
 	
@@ -43,7 +43,7 @@ public class SongDB{
 	}
 	
 	private SongDB(){
-		ServerUI.log("Database located in: " + databaseFolder.getAbsolutePath());
+		log("Database located in: " + databaseFolder.getAbsolutePath());
 		recreate();
 		
 	}
@@ -228,9 +228,21 @@ public class SongDB{
 		
 	}
 
-	public static DecompressedData decompressSongToPCM(byte[] compressedBytes, AudioFormat audioFormat){
-		if(compressedBytes == null || compressedBytes.length == 0 || audioFormat == null){
+	public static DecompressedData decompressSongToPCM(Song song, AudioFormat audioFormat) throws IOException{
+		byte[] compressedBytes;
+		if(song != null){
+			compressedBytes = Files.readAllBytes(song.getFile().toPath());
+		}else{
+			compressedBytes = new byte[0];
+		}
+		if(song == null || compressedBytes.length == 0 || audioFormat == null){
 			throw new IllegalArgumentException("Invalid arguments passed");
+		}
+
+		//Check cache
+		if(PCMCache.getInstance().get().containsKey(song)){
+			System.out.println("cached song found blyat: " + song.getTitle());
+			return PCMCache.getInstance().get().get(song);
 		}
 
 		try(final ByteArrayInputStream input = new ByteArrayInputStream(compressedBytes); final AudioInputStream audioSource = AudioSystem.getAudioInputStream(input)){
@@ -253,6 +265,7 @@ public class SongDB{
 				data.setBytes(byteArrayOutputStream.toByteArray());
 				data.setAudioFormat(new SerializableAudioFormat(outputFormat));
 
+				PCMCache.getInstance().get().put(song, data);
 				return data;
 
 			}

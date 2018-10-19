@@ -20,7 +20,6 @@ public class SerializableAudioFormat implements Serializable{
 
 	private void writeObject(ObjectOutputStream out) throws IOException{
 		out.defaultWriteObject();
-		out.writeObject(new SerializableEncoding(format.getEncoding()));
 		out.writeFloat(format.getSampleRate());
 		out.writeInt(format.getSampleSizeInBits());
 		out.writeInt(format.getChannels());
@@ -32,7 +31,7 @@ public class SerializableAudioFormat implements Serializable{
 
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException{
 		in.defaultReadObject();
-		format = new AudioFormat(((SerializableEncoding)in.readObject()).getEncoding(), in.readFloat(), in.readInt(), in.readInt(), in.readInt(), in.readFloat(), in.readBoolean());
+		format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, in.readFloat(), in.readInt(), in.readInt(), in.readInt(), in.readFloat(), in.readBoolean());
 
 	}
 
