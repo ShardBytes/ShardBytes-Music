@@ -12,8 +12,6 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
-import java.util.stream.IntStream;
-
 public class LoginDialogController{
 	
 	private Stage dialogStage;

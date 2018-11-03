@@ -5,17 +5,15 @@ import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXSlider;
 import com.jfoenix.controls.JFXTabPane;
 import com.jfoenix.controls.JFXTextField;
+import com.shardbytes.music.client.Networking;
+import com.shardbytes.music.client.Vector2;
 import com.shardbytes.music.client.audio.AudioPlayer;
 import com.shardbytes.music.client.technicalUI.AlbumArtCache;
 import com.shardbytes.music.client.technicalUI.JFXPlayer;
 import com.shardbytes.music.client.technicalUI.ListViewCell;
-import com.shardbytes.music.client.Networking;
-import com.shardbytes.music.client.Vector2;
 import com.shardbytes.music.common.Song;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -23,10 +21,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Border;
 import javafx.stage.Stage;
 
-import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -135,11 +131,13 @@ public class PlayerController implements Initializable{
 						
 						SimpleDoubleProperty simpleDoubleProperty = new SimpleDoubleProperty();
 						simpleDoubleProperty.addListener((observable, oldValue, newValue) -> {
-							timeSlider.setValue(newValue.doubleValue());
+							//TODO: timeSlider.setValue(newValue.doubleValue());
 						});
 						
 						AudioPlayer player = AudioPlayer.getInstance();
 						player.load(Networking.getInstance().getSongBytes(artist, album, title, simpleDoubleProperty));
+						setSongData(selected);
+						
 						player.play();
 						
 					}catch(Exception e){
@@ -176,7 +174,29 @@ public class PlayerController implements Initializable{
 		
 	}
 	
-	public void setTime(int time){
+	public void setTime(long usCurrent, long usTotal){
+		long currentMin;
+		long currentSec;
+		long leftUs;
+		long leftMin;
+		long leftSec;
+		long percent;
+		
+		currentMin = usCurrent / 1000000 / 60;
+		currentSec = usCurrent / 1000000 % 60;
+		
+		leftUs = usTotal - usCurrent;
+		
+		leftMin = leftUs / 1000000 / 60;
+		leftSec = leftUs / 1000000 % 60;
+		
+		percent = usCurrent / usTotal * 100;
+		
+		timeCurrent.property
+		
+		timeCurrent.setText(currentMin + ":" + currentSec);
+		timeLeft.setText(leftMin + ":" + leftSec);
+		timeSlider.setValue(percent);
 		
 	}
 	

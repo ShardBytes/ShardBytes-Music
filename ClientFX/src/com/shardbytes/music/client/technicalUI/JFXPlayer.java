@@ -4,6 +4,7 @@ import com.shardbytes.music.client.Configs;
 import com.shardbytes.music.client.Networking;
 import com.shardbytes.music.client.ui.LoginDialogController;
 import com.shardbytes.music.client.ui.PlayerController;
+import com.shardbytes.music.common.Album;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXMLLoader;
@@ -23,8 +24,11 @@ public class JFXPlayer extends Application{
 	
 	public static void main(String[] args) throws Exception{
 		Configs.getInstance().load();
+		AlbumArtCache.load();
 		launch(args);
 		Networking.getInstance().disconnect();
+		Configs.getInstance().save();
+		AlbumArtCache.save();
 		System.exit(0);
 	}
 	
